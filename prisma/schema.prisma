@@ -1,0 +1,110 @@
+// Chatbot Node Backend - Prisma Schema
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// Base fields for all models
+model CozeChatHistory {
+  id             Int       @id @default(autoincrement())
+  inboxUserId    BigInt?   @map("inbox_user_id")
+  conversationId String?   @map("conversation_id")
+  shopId         String?   @map("shop_id")
+  botId          String?   @map("bot_id")
+  content        String?
+  sender         String?   // 'user' or 'bot'
+  sessionId      String?   @map("session_id")
+  replyId        Int?      @map("reply_id")
+  creator        String?   @default("")
+  createdAt      DateTime  @default(now()) @map("create_time")
+  updater        String?   @default("")
+  updatedAt      DateTime  @updatedAt @map("update_time")
+  deleted        Int       @default(0)
+  tenantId       Int       @default(0) @map("tenant_id")
+
+  @@map("coze_chat_history")
+  @@index([conversationId])
+  @@index([shopId])
+  @@index([inboxUserId])
+  @@index([createdAt])
+}
+
+model ShopifyBotSetting {
+  id         Int      @id @default(autoincrement())
+  shopId     String   @map("shop_id")
+  shopName   String?  @map("shop_name")
+  chatLogo   String?  @map("chat_logo")
+  chatAvatar String?  @map("chat_avatar")
+  apiToken   String?  @map("api_token")
+  botId      String?  @map("bot_id")
+  botName    String?  @map("bot_name")
+  creator    String?  @default("")
+  createdAt  DateTime @default(now()) @map("create_time")
+  updater    String?  @default("")
+  updatedAt  DateTime @updatedAt @map("update_time")
+  deleted    Int      @default(0)
+  tenantId   Int      @default(0) @map("tenant_id")
+
+  @@map("shopify_bot_setting")
+  @@index([shopId])
+  @@index([shopName])
+}
+
+model ShopifyInboxUser {
+  id        Int      @id @default(autoincrement())
+  shopId    String   @map("shop_id")
+  shopName  String?  @map("shop_name")
+  userEmail String   @map("user_email")
+  userName  String?  @map("user_name")
+  sysUserId Int?     @map("sys_user_id")
+  creator   String?  @default("")
+  createdAt DateTime @default(now()) @map("create_time")
+  updater   String?  @default("")
+  updatedAt DateTime @updatedAt @map("update_time")
+  deleted   Int      @default(0)
+  tenantId  Int      @default(0) @map("tenant_id")
+
+  @@map("shopify_inbox_user")
+  @@index([shopId])
+  @@index([userEmail])
+}
+
+model CozeConversation {
+  id             Int       @id @default(autoincrement())
+  inboxUserId    Int?   @map("inbox_user_id")
+  conversationId String    @map("conversation_id")
+  shopId         String?   @map("shop_id")
+  botId          String?   @map("bot_id")
+  lastChatDate   DateTime? @map("last_chat_date")
+  creator        String?   @default("")
+  createdAt      DateTime  @default(now()) @map("create_time")
+  updater        String?   @default("")
+  updatedAt      DateTime  @updatedAt @map("update_time")
+  deleted        Int       @default(0)
+  tenantId       Int       @default(0) @map("tenant_id")
+
+  @@map("coze_conversation")
+  @@index([conversationId])
+  @@index([inboxUserId])
+  @@index([shopId])
+}
+
+// Simple admin user model for authentication
+model AdminUser {
+  id        Int      @id @default(autoincrement())
+  username  String   @unique
+  password  String   // bcrypt hashed
+  email     String?
+  nickname  String?
+  status    Int      @default(1) // 1=active, 0=disabled
+  createdAt DateTime @default(now()) @map("create_time")
+  updatedAt DateTime @updatedAt @map("update_time")
+  deleted   Int      @default(0)
+
+  @@map("admin_user")
+}
+
