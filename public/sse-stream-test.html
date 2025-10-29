@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SSE 流式响应测试 - Coze 智能客服</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .container {
+      max-width: 800px;
+      width: 100%;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      overflow: hidden;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 30px;
+      text-align: center;
+    }
+
+    .header h1 {
+      font-size: 28px;
+      margin-bottom: 10px;
+    }
+
+    .header p {
+      font-size: 14px;
+      opacity: 0.9;
+    }
+
+    .chat-area {
+      padding: 30px;
+      min-height: 400px;
+      max-height: 500px;
+      overflow-y: auto;
+    }
+
+    .message {
+      margin-bottom: 20px;
+      display: flex;
+      gap: 12px;
+    }
+
+    .message.user {
+      flex-direction: row-reverse;
+    }
+
+    .message-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+
+    .message.user .message-avatar {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .message.bot .message-avatar {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    }
+
+    .message-content {
+      max-width: 70%;
+      padding: 12px 18px;
+      border-radius: 18px;
+      line-height: 1.6;
+      word-wrap: break-word;
+    }
+
+    .message.user .message-content {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .message.bot .message-content {
+      background: #f5f5f5;
+      color: #333;
+    }
+
+    .message.bot .message-content.streaming {
+      position: relative;
+    }
+
+    .message.bot .message-content.streaming::after {
+      content: '▋';
+      animation: blink 1s infinite;
+      margin-left: 2px;
+    }
+
+    @keyframes blink {
+      0%, 50% { opacity: 1; }
+      51%, 100% { opacity: 0; }
+    }
+
+    .input-area {
+      padding: 20px 30px;
+      background: #f9f9f9;
+      border-top: 1px solid #e5e5e5;
+    }
+
+    .input-group {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 15px;
+    }
+
+    .input-group input,
+    .input-group textarea {
+      flex: 1;
+      padding: 12px 18px;
+      border: 2px solid #e5e5e5;
+      border-radius: 12px;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.3s;
+    }
+
+    .input-group input:focus,
+    .input-group textarea:focus {
+      border-color: #667eea;
+    }
+
+    .input-group textarea {
+      resize: vertical;
+      min-height: 60px;
+      max-height: 200px;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 10px;
+    }
+
+    button {
+      padding: 12px 30px;
+      border: none;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    button.primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    button.primary:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    button.secondary {
+      background: white;
+      color: #667eea;
+      border: 2px solid #667eea;
+    }
+
+    button.secondary:hover:not(:disabled) {
+      background: #f5f5f5;
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .quick-questions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .quick-questions button {
+      padding: 8px 16px;
+      font-size: 13px;
+      background: white;
+      color: #667eea;
+      border: 1px solid #e5e5e5;
+    }
+
+    .quick-questions button:hover {
+      background: #f5f5f5;
+      border-color: #667eea;
+    }
+
+    .status {
+      text-align: center;
+      padding: 10px;
+      font-size: 13px;
+      color: #666;
+    }
+
+    .status.streaming {
+      color: #667eea;
+      font-weight: 600;
+    }
+
+    .stats {
+      display: flex;
+      justify-content: space-around;
+      padding: 15px;
+      background: #f0f0f0;
+      font-size: 12px;
+      color: #666;
+    }
+
+    .stats-item span {
+      font-weight: 600;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>⚡ SSE 流式响应测试</h1>
+      <p>体验打字机效果 - 实时逐字显示 AI 回复</p>
+    </div>
+
+    <div class="stats">
+      <div class="stats-item">响应时间: <span id="responseTime">-</span></div>
+      <div class="stats-item">字符数: <span id="charCount">0</span></div>
+      <div class="stats-item">状态: <span id="statusText">就绪</span></div>
+    </div>
+
+    <div class="chat-area" id="chatArea">
+      <div class="message bot">
+        <div class="message-avatar">🤖</div>
+        <div class="message-content">
+          你好！我是 AI 智能客服。请输入你的问题，我会逐字逐句地回答你。
+        </div>
+      </div>
+    </div>
+
+    <div class="input-area">
+      <div class="input-group">
+        <textarea 
+          id="messageInput" 
+          placeholder="输入你的消息..."
+          rows="2"
+        ></textarea>
+      </div>
+      <div class="button-group">
+        <button class="primary" id="sendBtn" onclick="sendMessage()">
+          📤 发送消息
+        </button>
+        <button class="secondary" onclick="clearChat()">
+          🗑️ 清空对话
+        </button>
+      </div>
+      <div class="quick-questions">
+        <button onclick="quickAsk('请介绍一下 iPhone 15 Pro Max')">iPhone 介绍</button>
+        <button onclick="quickAsk('MacBook Pro 和 MacBook Air 有什么区别？')">MacBook 对比</button>
+        <button onclick="quickAsk('What colors are available for AirPods Pro?')">英文测试</button>
+        <button onclick="quickAsk('¿Cuál es el precio del Apple Watch?')">西班牙语测试</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const BOT_ID = '7566252531572473891';
+    const API_URL = 'http://localhost:3000';
+    const USER_ID = `test-user-sse-${Date.now()}`;
+    let conversationId = null;
+    let startTime = 0;
+    let currentBotMessage = null;
+
+    // 发送消息
+    async function sendMessage() {
+      const input = document.getElementById('messageInput');
+      const message = input.value.trim();
+      
+      if (!message) return;
+
+      // 禁用输入
+      input.disabled = true;
+      document.getElementById('sendBtn').disabled = true;
+      updateStatus('发送中...', false);
+
+      // 显示用户消息
+      addMessage(message, 'user');
+      input.value = '';
+
+      // 创建 bot 消息容器
+      currentBotMessage = createBotMessage();
+      
+      startTime = Date.now();
+
+      try {
+        // 使用 fetch 进行 SSE 流式请求
+        const response = await fetch(`${API_URL}/api/coze/chat/stream`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            userId: USER_ID,
+            message: message,
+            botId: BOT_ID,
+            shopId: 'evershop-demo',
+            conversationId: conversationId
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
+        let fullResponse = '';
+
+        updateStatus('AI 正在回复...', true);
+
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split('\n');
+          buffer = lines.pop() || '';
+
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              const dataStr = line.substring(6).trim();
+              if (dataStr === '[DONE]') {
+                finishBotMessage();
+                continue;
+              }
+
+              try {
+                const data = JSON.parse(dataStr);
+                
+                if (data.event === 'started') {
+                  conversationId = data.conversationId;
+                  console.log('Stream started:', conversationId);
+                } else if (data.event === 'message') {
+                  fullResponse += data.content;
+                  appendToBotMessage(data.content);
+                  updateStats(fullResponse);
+                } else if (data.event === 'completed') {
+                  finishBotMessage();
+                  const duration = ((Date.now() - startTime) / 1000).toFixed(2);
+                  document.getElementById('responseTime').textContent = `${duration}s`;
+                  updateStatus('完成', false);
+                } else if (data.event === 'error') {
+                  appendToBotMessage(`\n\n❌ 错误: ${data.error}`);
+                  finishBotMessage();
+                  updateStatus('错误', false);
+                }
+              } catch (e) {
+                console.warn('Failed to parse SSE data:', dataStr);
+              }
+            }
+          }
+        }
+      } catch (error) {
+        console.error('SSE stream error:', error);
+        if (currentBotMessage) {
+          appendToBotMessage(`\n\n❌ 连接错误: ${error.message}`);
+          finishBotMessage();
+        }
+        updateStatus('错误', false);
+      } finally {
+        // 重新启用输入
+        input.disabled = false;
+        document.getElementById('sendBtn').disabled = false;
+        input.focus();
+      }
+    }
+
+    // 添加消息
+    function addMessage(content, sender) {
+      const chatArea = document.getElementById('chatArea');
+      const messageDiv = document.createElement('div');
+      messageDiv.className = `message ${sender}`;
+      
+      const avatar = document.createElement('div');
+      avatar.className = 'message-avatar';
+      avatar.textContent = sender === 'user' ? '👤' : '🤖';
+      
+      const contentDiv = document.createElement('div');
+      contentDiv.className = 'message-content';
+      contentDiv.textContent = content;
+      
+      messageDiv.appendChild(avatar);
+      messageDiv.appendChild(contentDiv);
+      chatArea.appendChild(messageDiv);
+      chatArea.scrollTop = chatArea.scrollHeight;
+    }
+
+    // 创建 bot 消息容器
+    function createBotMessage() {
+      const chatArea = document.getElementById('chatArea');
+      const messageDiv = document.createElement('div');
+      messageDiv.className = 'message bot';
+      
+      const avatar = document.createElement('div');
+      avatar.className = 'message-avatar';
+      avatar.textContent = '🤖';
+      
+      const contentDiv = document.createElement('div');
+      contentDiv.className = 'message-content streaming';
+      contentDiv.textContent = '';
+      
+      messageDiv.appendChild(avatar);
+      messageDiv.appendChild(contentDiv);
+      chatArea.appendChild(messageDiv);
+      chatArea.scrollTop = chatArea.scrollHeight;
+      
+      return contentDiv;
+    }
+
+    // 追加到 bot 消息
+    function appendToBotMessage(content) {
+      if (currentBotMessage) {
+        currentBotMessage.textContent += content;
+        document.getElementById('chatArea').scrollTop = document.getElementById('chatArea').scrollHeight;
+      }
+    }
+
+    // 完成 bot 消息
+    function finishBotMessage() {
+      if (currentBotMessage) {
+        currentBotMessage.classList.remove('streaming');
+        currentBotMessage = null;
+      }
+    }
+
+    // 更新状态
+    function updateStatus(text, isStreaming) {
+      const statusEl = document.getElementById('statusText');
+      statusEl.textContent = text;
+      statusEl.style.color = isStreaming ? '#667eea' : '#666';
+      statusEl.style.fontWeight = isStreaming ? '600' : 'normal';
+    }
+
+    // 更新统计
+    function updateStats(response) {
+      document.getElementById('charCount').textContent = response.length;
+      const duration = ((Date.now() - startTime) / 1000).toFixed(2);
+      document.getElementById('responseTime').textContent = `${duration}s`;
+    }
+
+    // 快速提问
+    function quickAsk(question) {
+      document.getElementById('messageInput').value = question;
+      sendMessage();
+    }
+
+    // 清空对话
+    function clearChat() {
+      const chatArea = document.getElementById('chatArea');
+      chatArea.innerHTML = `
+        <div class="message bot">
+          <div class="message-avatar">🤖</div>
+          <div class="message-content">
+            对话已清空。请输入你的问题。
+          </div>
+        </div>
+      `;
+      conversationId = null;
+      document.getElementById('responseTime').textContent = '-';
+      document.getElementById('charCount').textContent = '0';
+      updateStatus('就绪', false);
+    }
+
+    // Enter 键发送
+    document.getElementById('messageInput').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+
+    // 初始化
+    console.log('SSE Stream Test initialized');
+    console.log('Bot ID:', BOT_ID);
+    console.log('User ID:', USER_ID);
+  </script>
+</body>
+</html>
+

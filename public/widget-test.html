@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chatbot Widget Test - EverShop Integration</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 20px;
+      background: #f5f5f5;
+    }
+
+    h1 {
+      color: #333;
+      margin-bottom: 10px;
+    }
+
+    .subtitle {
+      color: #666;
+      margin-bottom: 30px;
+      font-size: 16px;
+    }
+
+    .card {
+      background: white;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+    }
+
+    .card h2 {
+      margin-top: 0;
+      color: #333;
+      font-size: 20px;
+    }
+
+    .product {
+      display: flex;
+      gap: 20px;
+      padding: 20px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      margin-bottom: 15px;
+      transition: all 0.2s;
+    }
+
+    .product:hover {
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .product-image {
+      width: 100px;
+      height: 100px;
+      background: #f0f0f0;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 40px;
+    }
+
+    .product-info {
+      flex: 1;
+    }
+
+    .product-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 5px;
+      color: #333;
+    }
+
+    .product-price {
+      font-size: 20px;
+      font-weight: bold;
+      color: red;
+      margin-bottom: 10px;
+    }
+
+    .product-description {
+      color: #666;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .button {
+      background: red;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      transition: background 0.2s;
+    }
+
+    .button:hover {
+      background: #cc0000;
+    }
+
+    .info-box {
+      background: #e6f4ff;
+      border: 1px solid #91d5ff;
+      padding: 15px;
+      border-radius: 4px;
+      margin-bottom: 20px;
+    }
+
+    .info-box strong {
+      color: #0050b3;
+    }
+
+    .feature-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    .feature-list li {
+      padding: 8px 0;
+      padding-left: 24px;
+      position: relative;
+    }
+
+    .feature-list li:before {
+      content: "✓";
+      position: absolute;
+      left: 0;
+      color: #52c41a;
+      font-weight: bold;
+    }
+
+    code {
+      background: #f5f5f5;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+    }
+
+    .widget-notice {
+      background: #fff7e6;
+      border: 1px solid #ffd666;
+      padding: 15px;
+      border-radius: 4px;
+      margin-top: 20px;
+    }
+
+    .widget-notice strong {
+      color: #d46b08;
+    }
+  </style>
+</head>
+<body>
+  <h1>🛍️ EverShop Demo Store</h1>
+  <p class="subtitle">Test the AI-powered chatbot widget - Click the red button in the bottom-right!</p>
+
+  <div class="info-box">
+    <strong>💡 Widget Integration Successful!</strong><br>
+    The chatbot widget is now active on this page. Try asking about:
+    <ul style="margin-top: 10px; margin-bottom: 0;">
+      <li>Product information and prices</li>
+      <li>Shipping and delivery options</li>
+      <li>Return policies</li>
+      <li>Order status and tracking</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>📦 Featured Products</h2>
+    
+    <div class="product">
+      <div class="product-image">📱</div>
+      <div class="product-info">
+        <div class="product-title">Premium Smartphone X</div>
+        <div class="product-price">$899.99</div>
+        <div class="product-description">
+          Latest flagship with 5G, 6.7" OLED display, triple camera system, and all-day battery life.
+        </div>
+        <button class="button" onclick="askAboutProduct('Premium Smartphone X')">Ask AI About This</button>
+      </div>
+    </div>
+
+    <div class="product">
+      <div class="product-image">💻</div>
+      <div class="product-info">
+        <div class="product-title">Ultra-Thin Laptop Pro</div>
+        <div class="product-price">$1,299.99</div>
+        <div class="product-description">
+          Professional laptop with 16GB RAM, 512GB SSD, 14" 4K display, and 10-hour battery.
+        </div>
+        <button class="button" onclick="askAboutProduct('Ultra-Thin Laptop Pro')">Ask AI About This</button>
+      </div>
+    </div>
+
+    <div class="product">
+      <div class="product-image">🎧</div>
+      <div class="product-info">
+        <div class="product-title">Wireless Noise-Cancelling Headphones</div>
+        <div class="product-price">$249.99</div>
+        <div class="product-description">
+          Premium over-ear headphones with active noise cancellation, 30-hour battery, and studio-quality sound.
+        </div>
+        <button class="button" onclick="askAboutProduct('Wireless Noise-Cancelling Headphones')">Ask AI About This</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>🤖 About the Chatbot Widget</h2>
+    <ul class="feature-list">
+      <li>Instant AI-powered responses</li>
+      <li>24/7 availability</li>
+      <li>Product recommendations</li>
+      <li>Order tracking</li>
+      <li>Multi-language support</li>
+      <li>Mobile-friendly interface</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>🔧 Implementation Details</h2>
+    <p><strong>Widget Embed Code:</strong></p>
+    <pre style="background: #f5f5f5; padding: 15px; border-radius: 4px; overflow-x: auto;"><code>&lt;script src="http://localhost:3000/widget/chatbot-widget.js"
+        data-api-url="http://localhost:3000"
+        data-bot-id="demo-bot"
+        data-shop-id="evershop-demo"&gt;
+&lt;/script&gt;</code></pre>
+
+    <div class="widget-notice">
+      <strong>⚙️ Configuration:</strong><br>
+      • API URL: <code>http://localhost:3000</code><br>
+      • Bot ID: <code>demo-bot</code><br>
+      • Shop ID: <code>evershop-demo</code><br>
+      • Position: <code>bottom-right</code> (default)
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>📚 Resources</h2>
+    <ul style="line-height: 2;">
+      <li><a href="/admin" target="_blank">Open Admin Dashboard</a></li>
+      <li><a href="/docs/evershop-integration.md" target="_blank">Integration Documentation</a></li>
+      <li><a href="/api/evershop/status" target="_blank">Check EverShop Connection</a></li>
+      <li><a href="/health" target="_blank">API Health Check</a></li>
+    </ul>
+  </div>
+
+  <!-- Chatbot Widget Script -->
+  <script src="/widget/chatbot-widget.js"
+          data-api-url="http://localhost:3000"
+          data-bot-id="demo-bot"
+          data-shop-id="evershop-demo"
+          data-position="bottom-right">
+  </script>
+
+  <script>
+    // Helper function to open chat and send message
+    function askAboutProduct(productName) {
+      if (window.ChatbotWidget) {
+        window.ChatbotWidget.open();
+        setTimeout(() => {
+          window.ChatbotWidget.sendMessage(`Tell me about the ${productName}`);
+        }, 500);
+      }
+    }
+
+    // Log widget initialization
+    window.addEventListener('load', function() {
+      console.log('✅ Chatbot widget initialized successfully!');
+      console.log('📍 Widget API:', window.ChatbotWidget);
+    });
+  </script>
+</body>
+</html>
+

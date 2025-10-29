@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Analytics Dashboard Test</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 20px;
+      background: #f5f5f5;
+    }
+
+    h1 {
+      color: #333;
+      margin-bottom: 30px;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .stat-card {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      border-left: 4px solid red;
+    }
+
+    .stat-card h3 {
+      margin: 0 0 10px 0;
+      font-size: 14px;
+      color: #666;
+    }
+
+    .stat-card .number {
+      font-size: 32px;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .stat-card .label {
+      font-size: 12px;
+      color: #999;
+      margin-top: 5px;
+    }
+
+    .chart-card {
+      background: white;
+      padding: 25px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+    }
+
+    .chart-card h2 {
+      margin: 0 0 20px 0;
+      font-size: 18px;
+      color: #333;
+    }
+
+    canvas {
+      max-height: 300px;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: #666;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+
+    table th,
+    table td {
+      text-align: left;
+      padding: 12px;
+      border-bottom: 1px solid #ddd;
+    }
+
+    table th {
+      background: #f9f9f9;
+      font-weight: 600;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <h1>📊 Analytics Dashboard Test</h1>
+
+  <div class="stats-grid" id="statsGrid">
+    <div class="stat-card">
+      <h3>Total Conversations</h3>
+      <div class="number" id="totalConversations">-</div>
+      <div class="label">Last 30 days</div>
+    </div>
+    <div class="stat-card">
+      <h3>Active Conversations</h3>
+      <div class="number" id="activeConversations">-</div>
+      <div class="label">With recent activity</div>
+    </div>
+    <div class="stat-card">
+      <h3>Avg Response Time</h3>
+      <div class="number" id="avgResponseTime">-</div>
+      <div class="label">Seconds</div>
+    </div>
+    <div class="stat-card">
+      <h3>Resolution Rate</h3>
+      <div class="number" id="resolutionRate">-</div>
+      <div class="label">Percentage</div>
+    </div>
+  </div>
+
+  <div class="chart-card">
+    <h2>📈 Conversation Volume (Last 30 Days)</h2>
+    <canvas id="volumeChart"></canvas>
+  </div>
+
+  <div class="chart-card">
+    <h2>⚡ Response Time Distribution</h2>
+    <canvas id="responseTimeChart"></canvas>
+  </div>
+
+  <div class="chart-card">
+    <h2>👥 Agent Performance</h2>
+    <table id="agentTable">
+      <thead>
+        <tr>
+          <th>Agent</th>
+          <th>Conversations</th>
+          <th>Messages</th>
+          <th>Avg Response Time</th>
+        </tr>
+      </thead>
+      <tbody id="agentTableBody">
+        <tr>
+          <td colspan="4" class="loading">Loading...</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    const API_URL = window.location.origin;
+    let volumeChart = null;
+    let responseTimeChart = null;
+
+    async function loadAnalytics() {
+      try {
+        // Load overview
+        const overviewRes = await fetch(`${API_URL}/api/analytics/overview`);
+        const overviewData = await overviewRes.json();
+        
+        if (overviewData.code === 0) {
+          const data = overviewData.data;
+          document.getElementById('totalConversations').textContent = data.totalConversations;
+          document.getElementById('activeConversations').textContent = data.activeConversations;
+          document.getElementById('avgResponseTime').textContent = data.avgResponseTime.toFixed(1) + 's';
+          document.getElementById('resolutionRate').textContent = data.resolutionRate.toFixed(1) + '%';
+        }
+
+        // Load volume data
+        const volumeRes = await fetch(`${API_URL}/api/analytics/conversations/volume`);
+        const volumeData = await volumeRes.json();
+        
+        if (volumeData.code === 0) {
+          renderVolumeChart(volumeData.data);
+        }
+
+        // Load response time data
+        const responseTimeRes = await fetch(`${API_URL}/api/analytics/conversations/response-time`);
+        const responseTimeData = await responseTimeRes.json();
+        
+        if (responseTimeData.code === 0) {
+          renderResponseTimeChart(responseTimeData.data);
+        }
+
+        // Load agent performance
+        const agentRes = await fetch(`${API_URL}/api/analytics/agents/performance`);
+        const agentData = await agentRes.json();
+        
+        if (agentData.code === 0) {
+          renderAgentTable(agentData.data);
+        }
+
+      } catch (error) {
+        console.error('Failed to load analytics:', error);
+      }
+    }
+
+    function renderVolumeChart(data) {
+      const ctx = document.getElementById('volumeChart');
+      
+      if (volumeChart) {
+        volumeChart.destroy();
+      }
+
+      volumeChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: data.map(d => d.date),
+          datasets: [{
+            label: 'Conversations',
+            data: data.map(d => d.count),
+            borderColor: 'rgb(255, 0, 0)',
+            backgroundColor: 'rgba(255, 0, 0, 0.1)',
+            tension: 0.4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          plugins: {
+            legend: {
+              display: false
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                precision: 0
+              }
+            }
+          }
+        }
+      });
+    }
+
+    function renderResponseTimeChart(data) {
+      const ctx = document.getElementById('responseTimeChart');
+      
+      if (responseTimeChart) {
+        responseTimeChart.destroy();
+      }
+
+      responseTimeChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: data.distribution.map(d => d.range),
+          datasets: [{
+            label: 'Messages',
+            data: data.distribution.map(d => d.count),
+            backgroundColor: [
+              'rgba(76, 175, 80, 0.8)',
+              'rgba(255, 193, 7, 0.8)',
+              'rgba(255, 152, 0, 0.8)',
+              'rgba(244, 67, 54, 0.8)'
+            ]
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          plugins: {
+            legend: {
+              display: false
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                precision: 0
+              }
+            }
+          }
+        }
+      });
+    }
+
+    function renderAgentTable(agents) {
+      const tbody = document.getElementById('agentTableBody');
+      
+      if (agents.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #666;">No data available</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = agents.map(agent => `
+        <tr>
+          <td>${agent.agentName}</td>
+          <td>${agent.conversationsHandled}</td>
+          <td>${agent.messagesCount}</td>
+          <td>${agent.avgResponseTime.toFixed(1)}s</td>
+        </tr>
+      `).join('');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      console.log('📊 Loading analytics...');
+      loadAnalytics();
+    });
+  </script>
+</body>
+</html>
+

@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat Interface</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      font-size: 14px;
+      line-height: 1.5;
+      color: #333;
+      background: #f9f9f9;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* Header */
+    .chat-header {
+      background: red;
+      color: white;
+      padding: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .chat-header-title {
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .chat-header-subtitle {
+      font-size: 12px;
+      opacity: 0.9;
+    }
+
+    .chat-header-close {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 24px;
+      cursor: pointer;
+      padding: 0;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 4px;
+      transition: background 0.2s;
+    }
+
+    .chat-header-close:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Messages area */
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      background: white;
+    }
+
+    .chat-message {
+      margin-bottom: 16px;
+      display: flex;
+      align-items: flex-end;
+      gap: 8px;
+    }
+
+    .chat-message.user {
+      flex-direction: row-reverse;
+    }
+
+    .chat-message-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #ddd;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 600;
+      color: #666;
+      flex-shrink: 0;
+    }
+
+    .chat-message-avatar.bot {
+      background: red;
+      color: white;
+    }
+
+    .chat-message-content {
+      max-width: 70%;
+      padding: 10px 14px;
+      border-radius: 18px;
+      word-wrap: break-word;
+    }
+
+    .chat-message.bot .chat-message-content {
+      background: #f0f0f0;
+      color: #333;
+      border-bottom-left-radius: 4px;
+    }
+
+    .chat-message.user .chat-message-content {
+      background: red;
+      color: white;
+      border-bottom-right-radius: 4px;
+    }
+
+    .chat-message-time {
+      font-size: 11px;
+      color: #999;
+      margin-top: 4px;
+      display: block;
+    }
+
+    /* Typing indicator */
+    .typing-indicator {
+      display: none;
+      align-items: center;
+      gap: 4px;
+      padding: 10px 14px;
+      background: #f0f0f0;
+      border-radius: 18px;
+      width: fit-content;
+    }
+
+    .typing-indicator.active {
+      display: flex;
+    }
+
+    .typing-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #999;
+      animation: typing 1.4s infinite;
+    }
+
+    .typing-dot:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+
+    .typing-dot:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+
+    @keyframes typing {
+      0%, 60%, 100% {
+        transform: translateY(0);
+      }
+      30% {
+        transform: translateY(-10px);
+      }
+    }
+
+    /* Input area */
+    .chat-input {
+      background: white;
+      border-top: 1px solid #e0e0e0;
+      padding: 12px 16px;
+      display: flex;
+      gap: 8px;
+      align-items: flex-end;
+    }
+
+    .chat-input-field {
+      flex: 1;
+      border: 1px solid #ddd;
+      border-radius: 20px;
+      padding: 10px 16px;
+      font-size: 14px;
+      font-family: inherit;
+      resize: none;
+      min-height: 40px;
+      max-height: 100px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .chat-input-field:focus {
+      border-color: red;
+    }
+
+    .chat-input-send {
+      background: red;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+
+    .chat-input-send:hover:not(:disabled) {
+      background: #cc0000;
+      transform: scale(1.05);
+    }
+
+    .chat-input-send:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+
+    /* Welcome message */
+    .chat-welcome {
+      text-align: center;
+      padding: 32px 16px;
+      color: #666;
+    }
+
+    .chat-welcome-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+    }
+
+    .chat-welcome-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #333;
+    }
+
+    .chat-welcome-text {
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    /* Empty state */
+    .chat-empty {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      text-align: center;
+      padding: 32px;
+      color: #666;
+    }
+
+    /* Scrollbar */
+    .chat-messages::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .chat-messages::-webkit-scrollbar-track {
+      background: #f1f1f1;
+    }
+
+    .chat-messages::-webkit-scrollbar-thumb {
+      background: #ccc;
+      border-radius: 3px;
+    }
+
+    .chat-messages::-webkit-scrollbar-thumb:hover {
+      background: #999;
+    }
+
+    /* Loading */
+    .loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      color: #666;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <div class="chat-header">
+    <div>
+      <div class="chat-header-title" id="shopName">Customer Service</div>
+      <div class="chat-header-subtitle" id="headerSubtitle">We typically reply instantly</div>
+    </div>
+    <button class="chat-header-close" onclick="closeChat()" aria-label="Close chat">
+      ×
+    </button>
+  </div>
+
+  <!-- Messages area -->
+  <div class="chat-messages" id="chatMessages">
+    <div class="chat-welcome">
+      <div class="chat-welcome-icon">👋</div>
+      <div class="chat-welcome-title" id="welcomeTitle">Welcome to our store!</div>
+      <div class="chat-welcome-text" id="welcomeText">
+        Hi! How can we help you today? Feel free to ask us about products, orders, or anything else.
+      </div>
+    </div>
+  </div>
+
+  <!-- Input area -->
+  <div class="chat-input">
+    <textarea
+      id="messageInput"
+      class="chat-input-field"
+      placeholder="Type your message..." 
+      rows="1"
+    ></textarea>
+    <button id="sendButton" class="chat-input-send" aria-label="Send message">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="22" y1="2" x2="11" y2="13"></line>
+        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Load Socket.io client -->
+  <script src="https://cdn.socket.io/4.6.0/socket.io.min.js"></script>
+  <!-- Load i18n -->
+  <script src="/widget/i18n/translations.js"></script>
+  <!-- Load WebSocket handler -->
+  <script src="/widget/websocket-handler.js"></script>
+
+  <script>
+    // Get URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const sessionId = urlParams.get('sessionId');
+    const botId = urlParams.get('botId');
+    const shopId = urlParams.get('shopId');
+    const customerId = urlParams.get('customerId');
+
+    // Get API URL from parent or default
+    let apiUrl = 'http://localhost:3000';
+    try {
+      const sessionData = window.parent.sessionStorage.getItem('chatbot_session');
+      if (sessionData) {
+        apiUrl = JSON.parse(sessionData).apiUrl || apiUrl;
+      }
+    } catch (e) {
+      console.error('Failed to get API URL from parent', e);
+    }
+
+    let conversationId = null;
+    let userId = customerId || sessionId;
+    
+    // Initialize WebSocket
+    const ws = new WidgetWebSocketHandler();
+    let typingTimeout = null;
+
+    // Notify parent that iframe is loaded
+    window.parent.postMessage({ type: 'IFRAME_LOADED' }, '*');
+
+    // Connect WebSocket
+    ws.connect(userId, apiUrl);
+    
+    // Setup WebSocket listeners
+    ws.onMessageReceived((data) => {
+      // Only show messages from others (not our own)
+      if (data.sender.userId !== userId) {
+        addMessageToUI(data.content, 'bot', data.timestamp);
+      }
+    });
+
+    ws.onTypingIndicator((data) => {
+      if (data.isTyping && data.userId !== userId) {
+        showTypingIndicator();
+      } else {
+        hideTypingIndicator();
+      }
+    });
+
+    ws.onConnectionChange((state) => {
+      updateConnectionStatus(state);
+    });
+
+    // Listen for messages from parent
+    window.addEventListener('message', function(event) {
+      const { type, data } = event.data;
+
+      switch (type) {
+        case 'CHAT_OPENED':
+          loadConversationHistory();
+          break;
+        case 'SEND_MESSAGE':
+          if (data && data.text) {
+            document.getElementById('messageInput').value = data.text;
+            sendMessage();
+          }
+          break;
+      }
+    });
+
+    // Load conversation history
+    async function loadConversationHistory() {
+      if (!userId) return;
+
+      try {
+        const response = await fetch(`${apiUrl}/api/chat-history/conversation/${userId}`);
+        if (response.ok) {
+          const data = await response.json();
+          if (data.code === 0 && data.data) {
+            conversationId = data.data.conversationId;
+            displayMessages(data.data.messages || []);
+            
+            // Join WebSocket conversation room
+            if (conversationId && ws.isConnected()) {
+              ws.joinConversation(conversationId);
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Failed to load conversation history:', error);
+      }
+    }
+
+    // Display messages
+    function displayMessages(messages) {
+      const messagesContainer = document.getElementById('chatMessages');
+      
+      // Remove welcome message
+      const welcome = messagesContainer.querySelector('.chat-welcome');
+      if (welcome) {
+        welcome.remove();
+      }
+
+      // Add messages
+      messages.forEach(msg => {
+        addMessageToUI(msg.content, msg.role === 'user' ? 'user' : 'bot', msg.createdAt);
+      });
+
+      scrollToBottom();
+    }
+
+    // Add message to UI
+    function addMessageToUI(content, sender, timestamp) {
+      const messagesContainer = document.getElementById('chatMessages');
+      
+      // Remove welcome if still present
+      const welcome = messagesContainer.querySelector('.chat-welcome');
+      if (welcome) {
+        welcome.remove();
+      }
+
+      const messageDiv = document.createElement('div');
+      messageDiv.className = `chat-message ${sender}`;
+
+      const avatar = document.createElement('div');
+      avatar.className = `chat-message-avatar ${sender}`;
+      avatar.textContent = sender === 'bot' ? '🤖' : '👤';
+
+      const contentDiv = document.createElement('div');
+      contentDiv.className = 'chat-message-content';
+      contentDiv.textContent = content;
+
+      if (timestamp) {
+        const time = document.createElement('span');
+        time.className = 'chat-message-time';
+        time.textContent = formatTime(timestamp);
+        contentDiv.appendChild(time);
+      }
+
+      messageDiv.appendChild(avatar);
+      messageDiv.appendChild(contentDiv);
+      messagesContainer.appendChild(messageDiv);
+
+      scrollToBottom();
+    }
+
+    // Format timestamp
+    function formatTime(timestamp) {
+      const date = new Date(timestamp);
+      return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    // Send message
+    async function sendMessage() {
+      const input = document.getElementById('messageInput');
+      const message = input.value.trim();
+
+      if (!message) return;
+
+      // Stop typing indicator
+      if (typingTimeout) {
+        clearTimeout(typingTimeout);
+        typingTimeout = null;
+      }
+      ws.sendTypingStop();
+
+      // Add user message to UI
+      addMessageToUI(message, 'user', new Date().toISOString());
+      input.value = '';
+      autoResize(input);
+
+      // Disable send button
+      const sendButton = document.getElementById('sendButton');
+      sendButton.disabled = true;
+
+      // Show typing indicator
+      showTypingIndicator();
+
+      try {
+        // Get or create conversation
+        if (!conversationId) {
+          const convResponse = await fetch(`${apiUrl}/api/coze/getOrCreate`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              shopId: shopId,
+              userId: userId
+            })
+          });
+
+          if (convResponse.ok) {
+            const convData = await convResponse.json();
+            if (convData.code === 0 && convData.data) {
+              conversationId = convData.data.conversationId;
+              // Join WebSocket room
+              if (ws.isConnected()) {
+                ws.joinConversation(conversationId);
+              }
+            }
+          }
+        }
+
+        // Send message to bot (WebSocket will handle real-time notification)
+        const response = await fetch(`${apiUrl}/api/coze/chat`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId: userId,
+            message: message,
+            conversationId: conversationId,
+            botId: botId || '7566252531572473891', // Use default bot if not provided
+            shopId: shopId || 'default-shop'
+          })
+        });
+
+        hideTypingIndicator();
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.code === 0 && data.data) {
+            // Bot response will come via WebSocket, but add as fallback
+            if (!ws.isConnected()) {
+              addMessageToUI(data.data.reply, 'bot', new Date().toISOString());
+            }
+
+            // Notify parent of new message
+            window.parent.postMessage({ 
+              type: 'NEW_MESSAGE', 
+              data: { message: data.data.reply } 
+            }, '*');
+          } else {
+            addMessageToUI('Sorry, I encountered an error. Please try again.', 'bot', new Date().toISOString());
+          }
+        } else {
+          throw new Error('Failed to send message');
+        }
+      } catch (error) {
+        console.error('Error sending message:', error);
+        hideTypingIndicator();
+        addMessageToUI('Sorry, I could not connect to the server. Please try again later.', 'bot', new Date().toISOString());
+      } finally {
+        sendButton.disabled = false;
+        input.focus();
+      }
+    }
+
+    // Show typing indicator
+    function showTypingIndicator() {
+      const messagesContainer = document.getElementById('chatMessages');
+      const typing = document.createElement('div');
+      typing.className = 'typing-indicator active';
+      typing.id = 'typingIndicator';
+      typing.innerHTML = '<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>';
+      messagesContainer.appendChild(typing);
+      scrollToBottom();
+    }
+
+    // Hide typing indicator
+    function hideTypingIndicator() {
+      const typing = document.getElementById('typingIndicator');
+      if (typing) {
+        typing.remove();
+      }
+    }
+
+    // Handle Enter key
+    function handleKeyDown(event) {
+      if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
+        sendMessage();
+      }
+    }
+
+    // Auto-resize textarea
+    function autoResize(textarea) {
+      textarea.style.height = 'auto';
+      textarea.style.height = Math.min(textarea.scrollHeight, 100) + 'px';
+    }
+
+    // Scroll to bottom
+    function scrollToBottom() {
+      const messagesContainer = document.getElementById('chatMessages');
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    // Close chat
+    function closeChat() {
+      window.parent.postMessage({ type: 'CLOSE_CHAT' }, '*');
+    }
+
+    // Handle input typing
+    document.getElementById('messageInput').addEventListener('input', function() {
+      if (typingTimeout) {
+        clearTimeout(typingTimeout);
+      }
+      
+      // Send typing start
+      ws.sendTypingStart();
+      
+      // Auto-stop after 3 seconds
+      typingTimeout = setTimeout(() => {
+        ws.sendTypingStop();
+        typingTimeout = null;
+      }, 3000);
+    });
+
+    // Update connection status indicator
+    function updateConnectionStatus(state) {
+      const header = document.querySelector('.chat-header-subtitle');
+      if (!header) return;
+
+      switch (state) {
+        case 'connected':
+          header.textContent = 'Online - We typically reply instantly';
+          header.style.color = '';
+          break;
+        case 'reconnecting':
+          header.textContent = 'Reconnecting...';
+          header.style.color = '#fa8c16';
+          break;
+        case 'disconnected':
+        case 'error':
+          header.textContent = 'Offline - Messages will be delivered when back online';
+          header.style.color = '#999';
+          break;
+      }
+    }
+
+    // Update UI with translations
+    function updateUITranslations() {
+      if (typeof widgetI18n === 'undefined') {
+        console.warn('i18n not loaded, using default text');
+        return;
+      }
+
+      // Update header
+      document.getElementById('shopName').textContent = widgetI18n.t('welcomeTitle');
+      document.getElementById('headerSubtitle').textContent = widgetI18n.t('welcomeSubtitle');
+      
+      // Update welcome message
+      document.getElementById('welcomeTitle').textContent = widgetI18n.t('welcome').split('!')[0] + '!';
+      document.getElementById('welcomeText').textContent = widgetI18n.t('welcome');
+      
+      // Update input placeholder
+      document.getElementById('messageInput').placeholder = widgetI18n.t('placeholder');
+      
+      // Update button aria-label
+      document.getElementById('sendButton').setAttribute('aria-label', widgetI18n.t('send'));
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function() {
+      // Clear old cache to fix stale error messages
+      try {
+        // Clear localStorage for this origin
+        const keysToRemove = [];
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key && (key.startsWith('chat_') || key.startsWith('conversation_'))) {
+            keysToRemove.push(key);
+          }
+        }
+        keysToRemove.forEach(key => localStorage.removeItem(key));
+        
+        console.log('🧹 Cache cleared:', keysToRemove.length, 'items removed');
+      } catch (e) {
+        console.warn('Failed to clear cache:', e);
+      }
+      
+      // Apply translations
+      updateUITranslations();
+      
+      // Setup event listeners (replacing inline onclick/onkeydown/oninput)
+      const messageInput = document.getElementById('messageInput');
+      const sendButton = document.getElementById('sendButton');
+      
+      // Send button click
+      sendButton.addEventListener('click', sendMessage);
+      
+      // Input auto-resize
+      messageInput.addEventListener('input', function() {
+        autoResize(this);
+      });
+      
+      // Keyboard shortcuts
+      messageInput.addEventListener('keydown', function(event) {
+        handleKeyDown(event);
+      });
+      
+      // Focus on input
+      messageInput.focus();
+      
+      // Update shop name if available
+      if (shopId && shopId !== 'default') {
+        const shopNameElement = document.getElementById('shopName');
+        if (shopNameElement) {
+          shopNameElement.textContent = shopId;
+        }
+      }
+      
+      console.log('✅ Event listeners initialized');
+    });
+  </script>
+</body>
+</html>
+

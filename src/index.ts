@@ -1,13 +1,51 @@
+import { createServer } from 'http';
 import app from './app';
 import config from './config';
 import logger from './lib/logger';
+import websocketService from './services/websocket.service';
+import webhookQueue from './services/webhook-queue.service';
+import webhookHandler from './services/webhook-handler.service';
 
-const server = app.listen(config.server.port, () => {
+// Create HTTP server
+const httpServer = createServer(app);
+
+// Initialize WebSocket
+websocketService.initialize(httpServer);
+
+// Initialize Webhook Queue (only if Redis is configured)
+try {
+  webhookQueue.initialize();
+  
+  // Setup webhook processors
+  webhookQueue.process('product', async (job) => {
+    return await webhookHandler.handleProductEvent(job);
+  });
+  
+  webhookQueue.process('order', async (job) => {
+    return await webhookHandler.handleOrderEvent(job);
+  });
+  
+  webhookQueue.process('customer', async (job) => {
+    return await webhookHandler.handleCustomerEvent(job);
+  });
+  
+  logger.info('Webhook queue initialized and processors registered');
+} catch (error: any) {
+  logger.warn('Webhook queue initialization failed (Redis not available?)', {
+    error: error.message,
+  });
+  logger.info('Webhooks will be processed synchronously without queue');
+}
+
+// Start server
+const server = httpServer.listen(config.server.port, () => {
   logger.info('Server started', {
     port: config.server.port,
     env: config.server.env,
     database: config.database.url.includes('file:') ? 'SQLite' : 'PostgreSQL',
+    websocket: 'enabled',
   });
+  console.log(`⚡ WebSocket: Enabled`);
 });
 
 // Graceful shutdown

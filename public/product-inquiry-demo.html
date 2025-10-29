@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>商品咨询演示 - EverShop 智能客服</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .demo-container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .header {
+      text-align: center;
+      color: white;
+      margin-bottom: 30px;
+    }
+
+    .header h1 {
+      font-size: 36px;
+      margin-bottom: 10px;
+    }
+
+    .header p {
+      font-size: 18px;
+      opacity: 0.9;
+    }
+
+    .main-content {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+      margin-bottom: 30px;
+    }
+
+    @media (max-width: 1024px) {
+      .main-content {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .store-section {
+      background: white;
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .store-section h2 {
+      margin-bottom: 20px;
+      color: #333;
+      font-size: 24px;
+    }
+
+    .products {
+      display: grid;
+      gap: 20px;
+    }
+
+    .product-card {
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 20px;
+      transition: all 0.3s;
+      cursor: pointer;
+    }
+
+    .product-card:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      transform: translateY(-2px);
+    }
+
+    .product-header {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 15px;
+    }
+
+    .product-image {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      flex-shrink: 0;
+    }
+
+    .product-info {
+      flex: 1;
+    }
+
+    .product-name {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 5px;
+      color: #333;
+    }
+
+    .product-price {
+      font-size: 24px;
+      font-weight: bold;
+      color: #e74c3c;
+      margin-bottom: 5px;
+    }
+
+    .product-stock {
+      font-size: 14px;
+      color: #27ae60;
+    }
+
+    .product-stock.low {
+      color: #e67e22;
+    }
+
+    .product-description {
+      color: #666;
+      font-size: 14px;
+      line-height: 1.6;
+      margin-bottom: 15px;
+    }
+
+    .ask-button {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      width: 100%;
+      transition: all 0.3s;
+    }
+
+    .ask-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    .chat-demo {
+      background: white;
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      position: sticky;
+      top: 20px;
+    }
+
+    .chat-demo h2 {
+      margin-bottom: 15px;
+      color: #333;
+      font-size: 24px;
+    }
+
+    .bot-info {
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .bot-info strong {
+      color: #667eea;
+    }
+
+    .quick-questions {
+      margin-top: 20px;
+    }
+
+    .quick-questions h3 {
+      font-size: 16px;
+      margin-bottom: 10px;
+      color: #555;
+    }
+
+    .question-btn {
+      background: #f0f0f0;
+      border: 1px solid #ddd;
+      padding: 10px 15px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      width: 100%;
+      text-align: left;
+      margin-bottom: 8px;
+      transition: all 0.2s;
+    }
+
+    .question-btn:hover {
+      background: #667eea;
+      color: white;
+      border-color: #667eea;
+    }
+
+    .features {
+      background: white;
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      margin-top: 30px;
+    }
+
+    .features h2 {
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+    }
+
+    .feature {
+      padding: 20px;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      border-radius: 8px;
+      text-align: center;
+    }
+
+    .feature-icon {
+      font-size: 36px;
+      margin-bottom: 10px;
+    }
+
+    .feature-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 5px;
+      color: #333;
+    }
+
+    .feature-desc {
+      font-size: 13px;
+      color: #666;
+      line-height: 1.5;
+    }
+
+    .status-bar {
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
+      padding: 15px 30px;
+      border-radius: 12px;
+      margin-bottom: 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: white;
+    }
+
+    .status-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #27ae60;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .language-badge {
+      background: rgba(255, 255, 255, 0.3);
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .language-badge:hover {
+      background: rgba(255, 255, 255, 0.5);
+    }
+  </style>
+</head>
+<body>
+  <div class="demo-container">
+    <div class="header">
+      <h1>🛍️ EverShop 智能客服演示</h1>
+      <p>体验 AI 驱动的商品咨询 - 实时响应 • 多语言支持 • 智能推荐</p>
+    </div>
+
+    <div class="status-bar">
+      <div class="status-item">
+        <div class="status-dot"></div>
+        <span>Bot ID: 7566252531572473891</span>
+      </div>
+      <div class="status-item">
+        <span>⚡ WebSocket: 已连接</span>
+      </div>
+      <div class="status-item">
+        <span class="language-badge" onclick="changeLanguage()">🌍 中文 / EN / ES</span>
+      </div>
+    </div>
+
+    <div class="main-content">
+      <!-- 左侧：商品展示 -->
+      <div class="store-section">
+        <h2>📦 热门商品</h2>
+        
+        <div class="products">
+          <!-- Product 1 -->
+          <div class="product-card">
+            <div class="product-header">
+              <div class="product-image">📱</div>
+              <div class="product-info">
+                <div class="product-name">iPhone 15 Pro Max</div>
+                <div class="product-price">¥9,999</div>
+                <div class="product-stock">库存充足 (50+ 件)</div>
+              </div>
+            </div>
+            <div class="product-description">
+              最新款 iPhone，搭载 A17 Pro 芯片，6.7英寸超视网膜 XDR 显示屏，钛金属设计，Pro 级相机系统。支持 5G，续航更持久。
+            </div>
+            <button class="ask-button" onclick="askAboutProduct('iPhone 15 Pro Max', '价格', '配置')">
+              💬 咨询此商品
+            </button>
+          </div>
+
+          <!-- Product 2 -->
+          <div class="product-card">
+            <div class="product-header">
+              <div class="product-image">💻</div>
+              <div class="product-info">
+                <div class="product-name">MacBook Pro 14寸</div>
+                <div class="product-price">¥14,999</div>
+                <div class="product-stock">库存充足 (30+ 件)</div>
+              </div>
+            </div>
+            <div class="product-description">
+              搭载 M3 Pro 芯片，14.2英寸 Liquid Retina XDR 显示屏，18GB 内存，512GB SSD。专为专业人士打造，性能强劲。
+            </div>
+            <button class="ask-button" onclick="askAboutProduct('MacBook Pro 14寸', '性能', '配送')">
+              💬 咨询此商品
+            </button>
+          </div>
+
+          <!-- Product 3 -->
+          <div class="product-card">
+            <div class="product-header">
+              <div class="product-image">🎧</div>
+              <div class="product-info">
+                <div class="product-name">AirPods Pro 第二代</div>
+                <div class="product-price">¥1,899</div>
+                <div class="product-stock low">库存紧张 (仅剩 5 件)</div>
+              </div>
+            </div>
+            <div class="product-description">
+              主动降噪耳机，搭载 H2 芯片，空间音频，自适应通透模式，30小时续航。MagSafe 充电盒。
+            </div>
+            <button class="ask-button" onclick="askAboutProduct('AirPods Pro', '库存', '降噪效果')">
+              💬 咨询此商品
+            </button>
+          </div>
+
+          <!-- Product 4 -->
+          <div class="product-card">
+            <div class="product-header">
+              <div class="product-image">⌚</div>
+              <div class="product-info">
+                <div class="product-name">Apple Watch Ultra 2</div>
+                <div class="product-price">¥6,499</div>
+                <div class="product-stock">库存充足 (20+ 件)</div>
+              </div>
+            </div>
+            <div class="product-description">
+              专业运动手表，钛金属表壳，49mm 超大屏幕，双频GPS，100米防水，续航长达 36 小时。
+            </div>
+            <button class="ask-button" onclick="askAboutProduct('Apple Watch Ultra 2', '功能', '续航')">
+              💬 咨询此商品
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 右侧：AI 机器人信息 -->
+      <div class="chat-demo">
+        <h2>🤖 AI 智能客服</h2>
+        
+        <div class="bot-info">
+          <strong>Bot ID:</strong> 7566252531572473891<br>
+          <strong>Workspace:</strong> 7351411557182226472<br>
+          <strong>名称:</strong> shop-bot-v2<br>
+          <strong>类型:</strong> 专业电商客服<br>
+          <strong>能力:</strong> 商品咨询、库存查询、价格说明、退换货政策、多语言支持
+        </div>
+
+        <div class="quick-questions">
+          <h3>💡 快速咨询示例：</h3>
+          
+          <button class="question-btn" onclick="askQuestion('iPhone 15 Pro Max 有什么颜色？')">
+            iPhone 15 Pro Max 有什么颜色？
+          </button>
+          
+          <button class="question-btn" onclick="askQuestion('MacBook Pro 和 MacBook Air 有什么区别？')">
+            MacBook Pro 和 MacBook Air 有什么区别？
+          </button>
+          
+          <button class="question-btn" onclick="askQuestion('AirPods Pro 的库存还有多少？')">
+            AirPods Pro 的库存还有多少？
+          </button>
+          
+          <button class="question-btn" onclick="askQuestion('Apple Watch 可以独立打电话吗？')">
+            Apple Watch 可以独立打电话吗？
+          </button>
+          
+          <button class="question-btn" onclick="askQuestion('What is the return policy?')">
+            What is the return policy? (English test)
+          </button>
+          
+          <button class="question-btn" onclick="askQuestion('¿Cuál es el tiempo de entrega?')">
+            ¿Cuál es el tiempo de entrega? (Spanish test)
+          </button>
+        </div>
+
+        <div style="margin-top: 25px; padding-top: 20px; border-top: 2px solid #e0e0e0;">
+          <h3 style="font-size: 16px; margin-bottom: 15px; color: #555;">🎯 测试场景</h3>
+          
+          <button class="question-btn" onclick="testScenario('price')">
+            💰 价格咨询场景
+          </button>
+          
+          <button class="question-btn" onclick="testScenario('stock')">
+            📦 库存查询场景
+          </button>
+          
+          <button class="question-btn" onclick="testScenario('shipping')">
+            🚚 配送咨询场景
+          </button>
+          
+          <button class="question-btn" onclick="testScenario('return')">
+            🔄 退换货场景
+          </button>
+          
+          <button class="question-btn" onclick="testScenario('multilang')">
+            🌍 多语言场景（EN→中文→ES）
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 功能特性 -->
+    <div class="features">
+      <h2>✨ 系统功能特性</h2>
+      <div class="feature-grid">
+        <div class="feature">
+          <div class="feature-icon">⚡</div>
+          <div class="feature-title">实时响应</div>
+          <div class="feature-desc">WebSocket 技术，50ms 极速响应</div>
+        </div>
+        
+        <div class="feature">
+          <div class="feature-icon">🌍</div>
+          <div class="feature-title">多语言支持</div>
+          <div class="feature-desc">英语、中文、西班牙语自动检测</div>
+        </div>
+        
+        <div class="feature">
+          <div class="feature-icon">⌨️</div>
+          <div class="feature-title">打字提示</div>
+          <div class="feature-desc">实时显示对方正在输入</div>
+        </div>
+        
+        <div class="feature">
+          <div class="feature-icon">🔄</div>
+          <div class="feature-title">自动重连</div>
+          <div class="feature-desc">网络断开自动恢复连接</div>
+        </div>
+        
+        <div class="feature">
+          <div class="feature-icon">🤖</div>
+          <div class="feature-title">AI 智能</div>
+          <div class="feature-desc">Coze 驱动的智能对话</div>
+        </div>
+        
+        <div class="feature">
+          <div class="feature-icon">📊</div>
+          <div class="feature-title">数据分析</div>
+          <div class="feature-desc">实时性能指标和趋势</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 聊天小部件（使用真实的 bot ID） -->
+  <script src="/widget/chatbot-widget.js"
+          data-api-url="http://localhost:3000"
+          data-bot-id="7566252531572473891"
+          data-shop-id="evershop-demo"
+          data-position="bottom-right">
+  </script>
+
+  <script>
+    // 咨询特定商品
+    function askAboutProduct(productName, topic1, topic2) {
+      const question = `你好！我想了解一下 ${productName}，请问${topic1}和${topic2}怎么样？`;
+      
+      if (window.ChatbotWidget) {
+        window.ChatbotWidget.open();
+        setTimeout(() => {
+          window.ChatbotWidget.sendMessage(question);
+        }, 500);
+      }
+    }
+
+    // 发送预设问题
+    function askQuestion(question) {
+      if (window.ChatbotWidget) {
+        window.ChatbotWidget.open();
+        setTimeout(() => {
+          window.ChatbotWidget.sendMessage(question);
+        }, 500);
+      }
+    }
+
+    // 测试场景
+    function testScenario(scenario) {
+      const scenarios = {
+        price: [
+          '你好！',
+          '请问 iPhone 15 Pro Max 的价格是多少？',
+          '有优惠活动吗？',
+          '可以分期付款吗？'
+        ],
+        stock: [
+          '你好！',
+          'AirPods Pro 还有库存吗？',
+          '什么时候能补货？',
+          '可以预订吗？'
+        ],
+        shipping: [
+          'Hi! Where do you ship to?',
+          'How long does delivery take?',
+          'Do you offer express shipping?',
+          'What is the shipping cost?'
+        ],
+        return: [
+          '退换货政策是怎样的？',
+          '退货需要多久处理？',
+          '运费谁承担？'
+        ],
+        multilang: [
+          'Hello! Tell me about iPhone.',
+          '能用中文介绍一下吗？',
+          '¿Cuánto cuesta el MacBook?',
+          '非常感谢！Thank you!'
+        ]
+      };
+
+      const messages = scenarios[scenario] || scenarios.price;
+      
+      if (window.ChatbotWidget) {
+        window.ChatbotWidget.open();
+        
+        // 逐条发送消息（间隔 3 秒）
+        messages.forEach((msg, index) => {
+          setTimeout(() => {
+            window.ChatbotWidget.sendMessage(msg);
+          }, index * 3000 + 500);
+        });
+      }
+    }
+
+    // 语言切换
+    let currentLang = 0;
+    const langs = ['中文', 'EN', 'ES'];
+    function changeLanguage() {
+      currentLang = (currentLang + 1) % langs.length;
+      document.querySelector('.language-badge').textContent = `🌍 ${langs[currentLang]}`;
+      
+      // 实际应用中这里会切换 widget 的语言
+      if (typeof widgetI18n !== 'undefined') {
+        const langCodes = ['zh-CN', 'en', 'es'];
+        widgetI18n.setLanguage(langCodes[currentLang]);
+      }
+    }
+
+    // 页面加载完成
+    window.addEventListener('load', function() {
+      console.log('🎉 商品咨询演示页面加载完成！');
+      console.log('📍 使用 Coze Bot ID: 7566252531572473891');
+      console.log('🌐 支持多语言：中文、English、Español');
+      console.log('⚡ WebSocket 实时通信已启用');
+      
+      // 显示欢迎提示
+      setTimeout(() => {
+        if (confirm('👋 欢迎！\n\n是否开始一个示例对话？\n我将演示如何咨询 iPhone 15 Pro Max 的价格和配置。')) {
+          testScenario('price');
+        }
+      }, 1000);
+    });
+  </script>
+</body>
+</html>
+

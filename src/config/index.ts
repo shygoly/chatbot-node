@@ -34,6 +34,13 @@ interface Config {
       publicKey: string;
       privateKeyPath: string;
     };
+    workflowId: string;
+    modelId: string;
+  };
+  evershop: {
+    baseUrl: string;
+    email: string;
+    password: string;
   };
 }
 
@@ -67,6 +74,14 @@ const config: Config = {
       publicKey: process.env.COZE2_PUBLIC_KEY || 'biaowGl9do-Dr_uMEZReTn8AFAqc36n925UUbo0CeWQ',
       privateKeyPath: process.env.COZE2_PRIVATE_KEY_PATH || 'config/coze-private-key2.pem',
     },
+    // Bot creation configuration (matching chatbotadmin)
+    workflowId: process.env.COZE_WORKFLOW_ID || '7530904201956147251',
+    modelId: process.env.COZE_MODEL_ID || '1742989917',
+  },
+  evershop: {
+    baseUrl: process.env.EVERSHOP_URL || 'https://evershop-fly.fly.dev',
+    email: process.env.EVERSHOP_EMAIL || 'admin@example.com',
+    password: process.env.EVERSHOP_PASSWORD || 'admin123',
   },
 };
 

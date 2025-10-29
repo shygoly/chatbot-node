@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Webhook Test - EverShop Integration</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 40px 20px;
+      background: #f5f5f5;
+    }
+
+    h1 {
+      color: #333;
+      margin-bottom: 10px;
+    }
+
+    .card {
+      background: white;
+      padding: 25px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+    }
+
+    .card h2 {
+      margin-top: 0;
+      color: #333;
+      font-size: 18px;
+    }
+
+    .webhook-btn {
+      background: red;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      margin-right: 10px;
+      margin-bottom: 10px;
+      transition: background 0.2s;
+    }
+
+    .webhook-btn:hover {
+      background: #cc0000;
+    }
+
+    .webhook-btn.secondary {
+      background: #666;
+    }
+
+    .webhook-btn.secondary:hover {
+      background: #555;
+    }
+
+    pre {
+      background: #f5f5f5;
+      padding: 15px;
+      border-radius: 4px;
+      overflow-x: auto;
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    .result {
+      margin-top: 15px;
+      padding: 15px;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+
+    .result.success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+
+    .result.error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 15px;
+      margin-top: 15px;
+    }
+
+    .stat-card {
+      background: #f9f9f9;
+      padding: 15px;
+      border-radius: 6px;
+      text-align: center;
+    }
+
+    .stat-card h3 {
+      margin: 0 0 5px 0;
+      font-size: 12px;
+      color: #666;
+      font-weight: normal;
+    }
+
+    .stat-card .number {
+      font-size: 28px;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .info-box {
+      background: #e6f4ff;
+      border: 1px solid #91d5ff;
+      padding: 15px;
+      border-radius: 4px;
+      margin-bottom: 20px;
+    }
+
+    .log {
+      background: #2c2c2c;
+      color: #00ff00;
+      padding: 15px;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      height: 200px;
+      overflow-y: auto;
+      margin-top: 15px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🔗 Webhook Integration Test</h1>
+  <p style="color: #666; margin-bottom: 30px;">Test EverShop webhook events and background processing</p>
+
+  <div class="info-box">
+    <strong>💡 About Webhooks:</strong><br>
+    Webhooks enable automatic synchronization when events occur in EverShop:
+    <ul style="margin: 10px 0 0 20px;">
+      <li><strong>Product events</strong> → Auto-update Coze knowledge base</li>
+      <li><strong>Order events</strong> → Send proactive messages to customers</li>
+      <li><strong>Customer events</strong> → Send welcome messages</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>📊 Queue Statistics</h2>
+    <button class="webhook-btn secondary" onclick="loadStats()">Refresh Stats</button>
+    <div class="stats" id="stats">
+      <div class="stat-card">
+        <h3>Waiting</h3>
+        <div class="number" id="stat-waiting">-</div>
+      </div>
+      <div class="stat-card">
+        <h3>Active</h3>
+        <div class="number" id="stat-active">-</div>
+      </div>
+      <div class="stat-card">
+        <h3>Completed</h3>
+        <div class="number" id="stat-completed">-</div>
+      </div>
+      <div class="stat-card">
+        <h3>Failed</h3>
+        <div class="number" id="stat-failed">-</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>🧪 Test Webhook Events</h2>
+    <p>Simulate webhook events from EverShop (Development mode only)</p>
+    
+    <h3 style="margin-top: 20px;">Product Events</h3>
+    <button class="webhook-btn" onclick="testProductCreated()">Product Created</button>
+    <button class="webhook-btn" onclick="testProductUpdated()">Product Updated</button>
+    <button class="webhook-btn" onclick="testProductDeleted()">Product Deleted</button>
+    
+    <h3 style="margin-top: 20px;">Order Events</h3>
+    <button class="webhook-btn" onclick="testOrderCreated()">Order Created</button>
+    <button class="webhook-btn" onclick="testOrderUpdated()">Order Updated (Shipped)</button>
+    
+    <h3 style="margin-top: 20px;">Customer Events</h3>
+    <button class="webhook-btn" onclick="testCustomerCreated()">Customer Created</button>
+    
+    <div id="result"></div>
+  </div>
+
+  <div class="card">
+    <h2>📋 Example Webhook Payloads</h2>
+    
+    <h3>Product Created</h3>
+    <pre id="payload-product-created">{
+  "event": "product.created",
+  "timestamp": "2025-10-28T12:00:00Z",
+  "data": {
+    "id": "123",
+    "name": "New Wireless Headphones",
+    "description": "Premium noise-cancelling headphones",
+    "price": 249.99,
+    "sku": "WH-2024",
+    "qty": 50
+  }
+}</pre>
+
+    <h3>Order Updated</h3>
+    <pre id="payload-order-updated">{
+  "event": "order.updated",
+  "timestamp": "2025-10-28T12:00:00Z",
+  "data": {
+    "id": "456",
+    "orderNumber": "ORD-456",
+    "customerId": "789",
+    "customerEmail": "customer@example.com",
+    "status": "shipped",
+    "previousStatus": "processing"
+  }
+}</pre>
+  </div>
+
+  <div class="log" id="eventLog"></div>
+
+  <script>
+    const API_URL = window.location.origin;
+
+    function log(message, type = 'info') {
+      const logDiv = document.getElementById('eventLog');
+      const time = new Date().toLocaleTimeString();
+      const colors = { info: '#00ff00', error: '#ff0000', warning: '#ffaa00' };
+      logDiv.innerHTML += `<div style="color: ${colors[type]}">[${time}] ${message}</div>`;
+      logDiv.scrollTop = logDiv.scrollHeight;
+      console.log(message);
+    }
+
+    function showResult(message, isSuccess) {
+      const resultDiv = document.getElementById('result');
+      resultDiv.className = 'result ' + (isSuccess ? 'success' : 'error');
+      resultDiv.innerHTML = message;
+    }
+
+    async function loadStats() {
+      try {
+        log('📊 Loading queue statistics...', 'info');
+        const response = await fetch(`${API_URL}/api/webhooks/stats`);
+        const data = await response.json();
+        
+        if (data.code === 0) {
+          document.getElementById('stat-waiting').textContent = data.data.waiting;
+          document.getElementById('stat-active').textContent = data.data.active;
+          document.getElementById('stat-completed').textContent = data.data.completed;
+          document.getElementById('stat-failed').textContent = data.data.failed;
+          log('✅ Statistics loaded', 'info');
+        } else {
+          log('❌ Failed to load stats: ' + data.msg, 'error');
+        }
+      } catch (error) {
+        log('❌ Error loading stats: ' + error.message, 'error');
+        showResult('Note: Webhook queue requires Redis. If stats show zeros, Redis may not be running.', false);
+      }
+    }
+
+    async function sendWebhook(type, event, data) {
+      try {
+        log(`🔔 Sending ${type} webhook: ${event}`, 'info');
+        
+        const response = await fetch(`${API_URL}/api/webhooks/test`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ type, event, data })
+        });
+        
+        const result = await response.json();
+        
+        if (result.code === 0) {
+          log(`✅ Webhook queued: ${event}`, 'info');
+          showResult(`✓ Webhook "${event}" queued successfully! Check server logs for processing.`, true);
+          loadStats();
+        } else {
+          log(`❌ Webhook failed: ${result.msg}`, 'error');
+          showResult(`✗ Failed: ${result.msg}`, false);
+        }
+      } catch (error) {
+        log(`❌ Error: ${error.message}`, 'error');
+        showResult(`✗ Error: ${error.message}`, false);
+      }
+    }
+
+    // Product events
+    function testProductCreated() {
+      sendWebhook('product', 'product.created', {
+        id: '123',
+        name: 'Test Wireless Headphones',
+        description: 'Premium noise-cancelling headphones',
+        price: 249.99,
+        sku: 'WH-TEST-' + Date.now(),
+        qty: 50
+      });
+    }
+
+    function testProductUpdated() {
+      sendWebhook('product', 'product.updated', {
+        id: '123',
+        name: 'Test Wireless Headphones (Updated)',
+        description: 'Premium noise-cancelling headphones - Now with better battery!',
+        price: 229.99,
+        sku: 'WH-TEST-123',
+        qty: 75
+      });
+    }
+
+    function testProductDeleted() {
+      sendWebhook('product', 'product.deleted', {
+        id: '123',
+        name: 'Test Wireless Headphones'
+      });
+    }
+
+    // Order events
+    function testOrderCreated() {
+      sendWebhook('order', 'order.created', {
+        id: '456',
+        orderNumber: 'ORD-TEST-' + Date.now(),
+        customerId: '789',
+        customerEmail: 'test.customer@example.com',
+        grandTotal: 249.99,
+        status: 'pending'
+      });
+    }
+
+    function testOrderUpdated() {
+      sendWebhook('order', 'order.updated', {
+        id: '456',
+        orderNumber: 'ORD-TEST-456',
+        customerId: '789',
+        customerEmail: 'test.customer@example.com',
+        grandTotal: 249.99,
+        status: 'shipped',
+        previousStatus: 'processing'
+      });
+    }
+
+    // Customer events
+    function testCustomerCreated() {
+      sendWebhook('customer', 'customer.created', {
+        id: '789',
+        customerId: 'CUST-TEST-' + Date.now(),
+        email: 'new.customer@example.com',
+        fullName: 'Test Customer'
+      });
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function() {
+      log('🚀 Webhook test page loaded', 'info');
+      loadStats();
+      
+      // Auto-refresh stats every 5 seconds
+      setInterval(loadStats, 5000);
+    });
+  </script>
+</body>
+</html>
+

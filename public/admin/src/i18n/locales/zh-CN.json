@@ -1,0 +1,124 @@
+{
+  "header": {
+    "title": "聊天机器人管理后台",
+    "subtitle": "管理您的 EverShop 聊天机器人对话和设置"
+  },
+  "nav": {
+    "inbox": "收件箱",
+    "assistant": "AI 助手",
+    "settings": "设置",
+    "analytics": "分析",
+    "logout": "退出"
+  },
+  "inbox": {
+    "title": "对话收件箱",
+    "subtitle": "{{count}} 未读对话",
+    "subtitle_desc": "查看和管理客户对话",
+    "search": "按名称或邮箱搜索",
+    "filterStatus": "按状态筛选",
+    "filterAgent": "按客服筛选",
+    "allConversations": "全部对话",
+    "unread": "未读",
+    "assigned": "分配给我",
+    "unassigned": "未分配",
+    "resolved": "已解决",
+    "noConversations": "未找到对话",
+    "selectConversation": "选择一个对话开始",
+    "assign": "分配",
+    "changeStatus": "更改状态",
+    "addTag": "添加标签",
+    "addNote": "添加备注",
+    "viewProfile": "查看档案"
+  },
+  "messages": {
+    "sendButton": "发送",
+    "typePlaceholder": "输入您的消息...",
+    "typing": "{{name}} 正在输入...",
+    "sendSuccess": "消息发送成功",
+    "sendError": "消息发送失败",
+    "draft": "草稿已保存"
+  },
+  "status": {
+    "open": "待处理",
+    "pending": "等待中",
+    "resolved": "已解决",
+    "closed": "已关闭",
+    "all": "全部"
+  },
+  "assistant": {
+    "title": "AI 助手",
+    "subtitle": "将您的 EverShop 数据同步到 Coze",
+    "products": "产品",
+    "orders": "订单",
+    "customers": "客户",
+    "syncNow": "立即同步",
+    "checkConnection": "检查连接",
+    "lastSync": "最后同步：{{time}}",
+    "syncSuccess": "✓ 成功同步 {{count}} 个{{type}}！",
+    "syncError": "✗ 同步失败：{{error}}",
+    "connectionSuccess": "✓ 已连接到 EverShop",
+    "connectionError": "✗ 连接失败"
+  },
+  "settings": {
+    "title": "设置",
+    "subtitle": "配置您的聊天机器人",
+    "botConfiguration": "机器人配置",
+    "botName": "机器人名称",
+    "botDescription": "描述",
+    "welcomeMessage": "欢迎消息",
+    "evershopIntegration": "EverShop 集成",
+    "evershopUrl": "EverShop 网址",
+    "saveButton": "保存设置",
+    "saveSuccess": "设置保存成功",
+    "saveError": "设置保存失败"
+  },
+  "analytics": {
+    "title": "分析",
+    "subtitle": "聊天机器人性能指标",
+    "overview": "概览",
+    "totalConversations": "总对话数",
+    "activeConversations": "活跃对话",
+    "avgResponseTime": "平均响应时间",
+    "resolutionRate": "解决率",
+    "csatScore": "客户满意度",
+    "conversationVolume": "对话量",
+    "agentPerformance": "客服绩效",
+    "agentName": "客服名称",
+    "conversationsHandled": "处理对话数",
+    "avgResolution": "平均解决时间",
+    "selectDateRange": "选择日期范围",
+    "today": "今天",
+    "last7Days": "最近 7 天",
+    "last30Days": "最近 30 天",
+    "custom": "自定义范围"
+  },
+  "errors": {
+    "network": "网络错误。请检查您的连接。",
+    "auth": "身份验证失败。请重新登录。",
+    "notFound": "未找到资源。",
+    "serverError": "服务器错误。请稍后重试。",
+    "validation": "请检查您的输入。",
+    "unknown": "发生错误。请重试。"
+  },
+  "common": {
+    "loading": "加载中...",
+    "save": "保存",
+    "cancel": "取消",
+    "delete": "删除",
+    "edit": "编辑",
+    "confirm": "确认",
+    "back": "返回",
+    "next": "下一步",
+    "submit": "提交",
+    "close": "关闭",
+    "yes": "是",
+    "no": "否"
+  },
+  "websocket": {
+    "connected": "在线",
+    "disconnected": "离线",
+    "reconnecting": "重新连接中...",
+    "connectionLost": "连接丢失。正在重新连接..."
+  }
+}
+

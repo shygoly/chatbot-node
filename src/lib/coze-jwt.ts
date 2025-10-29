@@ -59,7 +59,7 @@ export async function getCozeJWTAccessToken(
     const token = await getJWTToken({
       baseURL: baseUrl,
       appId: clientId,
-      aud: 'api.coze.cn',
+      aud: 'api.coze.cn', // Always use api.coze.cn as audience (even when using proxy)
       keyid: publicKeyId,
       privateKey: privateKey,
       // Remove scope - permissions are determined by OAuth app configuration on Coze platform

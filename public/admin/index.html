@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chatbot Admin Dashboard</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: #f5f5f5;
+      color: #333;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .header {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+    }
+
+    .header h1 {
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    .header p {
+      color: #666;
+      font-size: 14px;
+    }
+
+    .nav {
+      background: white;
+      padding: 15px 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+      display: flex;
+      gap: 20px;
+    }
+
+    .nav a {
+      color: #333;
+      text-decoration: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      transition: background 0.2s;
+    }
+
+    .nav a:hover {
+      background: #f0f0f0;
+    }
+
+    .nav a.active {
+      background: red;
+      color: white;
+    }
+
+    .content {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      min-height: 400px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .stat-card {
+      background: #f9f9f9;
+      padding: 20px;
+      border-radius: 8px;
+      border-left: 4px solid red;
+    }
+
+    .stat-card h3 {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 10px;
+    }
+
+    .stat-card .number {
+      font-size: 32px;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .button {
+      background: red;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      transition: background 0.2s;
+    }
+
+    .button:hover {
+      background: #cc0000;
+    }
+
+    .button.secondary {
+      background: #666;
+    }
+
+    .button.secondary:hover {
+      background: #555;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      font-size: 14px;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+      font-family: inherit;
+    }
+
+    .form-group textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    table th,
+    table td {
+      text-align: left;
+      padding: 12px;
+      border-bottom: 1px solid #ddd;
+    }
+
+    table th {
+      background: #f9f9f9;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    table tr:hover {
+      background: #f9f9f9;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .badge.success {
+      background: #e6f4ea;
+      color: #1e7e34;
+    }
+
+    .badge.warning {
+      background: #fff3cd;
+      color: #856404;
+    }
+
+    .badge.error {
+      background: #f8d7da;
+      color: #721c24;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: #666;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .message {
+      padding: 15px;
+      border-radius: 4px;
+      margin-bottom: 20px;
+    }
+
+    .message.success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+
+    .message.error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1 data-i18n="header.title">Chatbot Admin Dashboard</h1>
+      <p data-i18n="header.subtitle">Manage your EverShop chatbot conversations and settings</p>
+    </div>
+
+    <div class="nav">
+      <a href="#inbox" class="nav-link active" onclick="showPage('inbox')" data-i18n="nav.inbox">Inbox</a>
+      <a href="#assistant" class="nav-link" onclick="showPage('assistant')" data-i18n="nav.assistant">AI Assistant</a>
+      <a href="#settings" class="nav-link" onclick="showPage('settings')" data-i18n="nav.settings">Settings</a>
+      <a href="#analytics" class="nav-link" onclick="showPage('analytics')" data-i18n="nav.analytics">Analytics</a>
+      <div style="margin-left: auto; display: flex; gap: 5px;">
+        <select id="languageSelector" onchange="changeLanguage(this.value)" style="padding: 5px; border-radius: 4px; border: 1px solid #ddd;">
+          <option value="en">🇺🇸 EN</option>
+          <option value="zh-CN">🇨🇳 中文</option>
+          <option value="es">🇪🇸 ES</option>
+        </select>
+      </div>
+    </div>
+
+    <div id="message-container"></div>
+
+    <!-- Inbox Page -->
+    <div id="inbox-page" class="content">
+      <h2 data-i18n="inbox.title">Conversation Inbox</h2>
+      <p data-i18n="inbox.subtitle_desc">View and manage customer conversations</p>
+      <div class="stats">
+        <div class="stat-card">
+          <h3 data-i18n="analytics.totalConversations">Total Conversations</h3>
+          <div class="number" id="totalConversations">0</div>
+        </div>
+        <div class="stat-card">
+          <h3 data-i18n="analytics.activeConversations">Active Today</h3>
+          <div class="number" id="activeToday">0</div>
+        </div>
+        <div class="stat-card">
+          <h3 data-i18n="analytics.resolutionRate">Response Rate</h3>
+          <div class="number" id="responseRate">0%</div>
+        </div>
+      </div>
+      <div id="inbox-list"></div>
+    </div>
+
+    <!-- AI Assistant Page -->
+    <div id="assistant-page" class="content hidden">
+      <h2>AI Assistant - Data Sync</h2>
+      <p>Sync your EverShop data with the Coze knowledge base</p>
+      
+      <div class="stats">
+        <div class="stat-card">
+          <h3>Products</h3>
+          <div class="number" id="evershopProducts">-</div>
+        </div>
+        <div class="stat-card">
+          <h3>Orders</h3>
+          <div class="number" id="evershopOrders">-</div>
+        </div>
+        <div class="stat-card">
+          <h3>Customers</h3>
+          <div class="number" id="evershopCustomers">-</div>
+        </div>
+      </div>
+
+      <div style="margin-top: 30px;">
+        <h3 style="margin-bottom: 15px;">Sync Operations</h3>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+          <button class="button" onclick="syncProducts()">Sync Products</button>
+          <button class="button" onclick="syncOrders()">Sync Orders</button>
+          <button class="button" onclick="syncCustomers()">Sync Customers</button>
+          <button class="button secondary" onclick="checkEvershopStatus()">Check Connection</button>
+        </div>
+      </div>
+
+      <div id="sync-status" style="margin-top: 30px;"></div>
+    </div>
+
+    <!-- Settings Page -->
+    <div id="settings-page" class="content hidden">
+      <h2>Settings</h2>
+      <p>Configure your chatbot and EverShop integration</p>
+      
+      <div class="form-group">
+        <label>EverShop URL</label>
+        <input type="text" id="evershopUrl" placeholder="https://your-store.com">
+      </div>
+      
+      <div class="form-group">
+        <label>Bot Name</label>
+        <input type="text" id="botName" placeholder="Your Store Bot">
+      </div>
+      
+      <div class="form-group">
+        <label>Welcome Message</label>
+        <textarea id="welcomeMessage" placeholder="Hi! How can we help you today?"></textarea>
+      </div>
+      
+      <button class="button" onclick="saveSettings()">Save Settings</button>
+    </div>
+
+    <!-- Analytics Page -->
+    <div id="analytics-page" class="content hidden">
+      <h2>Analytics</h2>
+      <p>View chatbot performance metrics</p>
+      <div class="stats">
+        <div class="stat-card">
+          <h3>Messages Sent</h3>
+          <div class="number" id="messagesSent">0</div>
+        </div>
+        <div class="stat-card">
+          <h3>Avg Response Time</h3>
+          <div class="number" id="avgResponseTime">0s</div>
+        </div>
+        <div class="stat-card">
+          <h3>Customer Satisfaction</h3>
+          <div class="number" id="csat">N/A</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = window.location.origin;
+    let currentPage = 'inbox';
+    let currentLang = 'en';
+    
+    // Load translations
+    const translations = {
+      en: null,
+      'zh-CN': null,
+      es: null
+    };
+    
+    // Load all translation files
+    async function loadTranslations() {
+      try {
+        const langs = ['en', 'zh-CN', 'es'];
+        for (const lang of langs) {
+          const response = await fetch(`/admin/src/i18n/locales/${lang}.json`);
+          if (response.ok) {
+            translations[lang] = await response.json();
+          }
+        }
+        console.log('✅ Translations loaded');
+        applyTranslations();
+      } catch (error) {
+        console.error('Failed to load translations:', error);
+      }
+    }
+    
+    // Get translation
+    function t(key, params = {}) {
+      const keys = key.split('.');
+      let value = translations[currentLang];
+      
+      if (!value) {
+        value = translations.en; // Fallback to English
+      }
+      
+      for (const k of keys) {
+        value = value?.[k];
+        if (!value) break;
+      }
+      
+      if (!value) {
+        // Fallback to English
+        value = translations.en;
+        for (const k of keys) {
+          value = value?.[k];
+          if (!value) break;
+        }
+      }
+      
+      if (!value) {
+        return key; // Return key if not found
+      }
+      
+      // Replace parameters
+      let result = value;
+      Object.keys(params).forEach(param => {
+        result = result.replace(`{{${param}}}`, params[param]);
+      });
+      
+      return result;
+    }
+    
+    // Apply translations to page
+    function applyTranslations() {
+      document.querySelectorAll('[data-i18n]').forEach(element => {
+        const key = element.getAttribute('data-i18n');
+        element.textContent = t(key);
+      });
+    }
+    
+    // Change language
+    function changeLanguage(lang) {
+      currentLang = lang;
+      localStorage.setItem('admin_language', lang);
+      applyTranslations();
+      
+      // Update selector
+      document.getElementById('languageSelector').value = lang;
+    }
+
+    // Page navigation
+    function showPage(pageName) {
+      const pages = ['inbox', 'assistant', 'settings', 'analytics'];
+      pages.forEach(page => {
+        const pageElement = document.getElementById(`${page}-page`);
+        const linkElement = document.querySelector(`[onclick="showPage('${page}')"]`);
+        
+        if (page === pageName) {
+          pageElement.classList.remove('hidden');
+          linkElement.classList.add('active');
+          currentPage = page;
+          
+          // Load page data
+          if (page === 'inbox') loadInbox();
+          if (page === 'assistant') loadAssistantData();
+          if (page === 'analytics') loadAnalytics();
+        } else {
+          pageElement.classList.add('hidden');
+          linkElement.classList.remove('active');
+        }
+      });
+    }
+
+    // Show message
+    function showMessage(text, type = 'success') {
+      const container = document.getElementById('message-container');
+      container.innerHTML = `<div class="message ${type}">${text}</div>`;
+      setTimeout(() => {
+        container.innerHTML = '';
+      }, 5000);
+    }
+
+    // Load inbox data
+    async function loadInbox() {
+      try {
+        const response = await fetch(`${API_URL}/api/chat-history/statistics`);
+        const data = await response.json();
+        
+        if (data.code === 0 && data.data) {
+          document.getElementById('totalConversations').textContent = data.data.totalConversations || 0;
+          document.getElementById('activeToday').textContent = data.data.activeToday || 0;
+          document.getElementById('responseRate').textContent = '95%'; // Placeholder
+        }
+      } catch (error) {
+        console.error('Failed to load inbox data:', error);
+      }
+    }
+
+    // Load assistant data
+    async function loadAssistantData() {
+      try {
+        const response = await fetch(`${API_URL}/api/evershop/statistics`);
+        const data = await response.json();
+        
+        if (data.code === 0 && data.data) {
+          document.getElementById('evershopProducts').textContent = data.data.products || 0;
+          document.getElementById('evershopOrders').textContent = data.data.orders || 0;
+          document.getElementById('evershopCustomers').textContent = data.data.customers || 0;
+        }
+      } catch (error) {
+        console.error('Failed to load EverShop data:', error);
+        showMessage('Failed to load EverShop data. Please check your configuration.', 'error');
+      }
+    }
+
+    // Check EverShop connection
+    async function checkEvershopStatus() {
+      const statusDiv = document.getElementById('sync-status');
+      statusDiv.innerHTML = '<div class="loading">Checking connection...</div>';
+      
+      try {
+        const response = await fetch(`${API_URL}/api/evershop/status`);
+        const data = await response.json();
+        
+        if (data.code === 0) {
+          statusDiv.innerHTML = `<div class="message success">✓ Connected to EverShop: ${data.data.baseUrl}</div>`;
+        } else {
+          statusDiv.innerHTML = `<div class="message error">✗ Connection failed: ${data.msg}</div>`;
+        }
+      } catch (error) {
+        statusDiv.innerHTML = `<div class="message error">✗ Connection error: ${error.message}</div>`;
+      }
+    }
+
+    // Sync products
+    async function syncProducts() {
+      const statusDiv = document.getElementById('sync-status');
+      statusDiv.innerHTML = '<div class="loading">Syncing products...</div>';
+      
+      try {
+        const response = await fetch(`${API_URL}/api/evershop/sync/products`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ shopId: 'default', botId: 'default', limit: 100 })
+        });
+        
+        const data = await response.json();
+        
+        if (data.code === 0) {
+          statusDiv.innerHTML = `<div class="message success">✓ Synced ${data.data.productsCount} products successfully!</div>`;
+          loadAssistantData();
+        } else {
+          statusDiv.innerHTML = `<div class="message error">✗ Sync failed: ${data.msg}</div>`;
+        }
+      } catch (error) {
+        statusDiv.innerHTML = `<div class="message error">✗ Sync error: ${error.message}</div>`;
+      }
+    }
+
+    // Sync orders
+    async function syncOrders() {
+      const statusDiv = document.getElementById('sync-status');
+      statusDiv.innerHTML = '<div class="loading">Fetching orders...</div>';
+      
+      try {
+        const response = await fetch(`${API_URL}/api/evershop/sync/orders`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ limit: 100, page: 1 })
+        });
+        
+        const data = await response.json();
+        
+        if (data.code === 0) {
+          statusDiv.innerHTML = `<div class="message success">✓ Fetched ${data.data.orders.length} orders successfully!</div>`;
+          loadAssistantData();
+        } else {
+          statusDiv.innerHTML = `<div class="message error">✗ Fetch failed: ${data.msg}</div>`;
+        }
+      } catch (error) {
+        statusDiv.innerHTML = `<div class="message error">✗ Fetch error: ${error.message}</div>`;
+      }
+    }
+
+    // Sync customers
+    async function syncCustomers() {
+      const statusDiv = document.getElementById('sync-status');
+      statusDiv.innerHTML = '<div class="loading">Fetching customers...</div>';
+      
+      try {
+        const response = await fetch(`${API_URL}/api/evershop/sync/customers`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ limit: 100, page: 1 })
+        });
+        
+        const data = await response.json();
+        
+        if (data.code === 0) {
+          statusDiv.innerHTML = `<div class="message success">✓ Fetched ${data.data.customers.length} customers successfully!</div>`;
+          loadAssistantData();
+        } else {
+          statusDiv.innerHTML = `<div class="message error">✗ Fetch failed: ${data.msg}</div>`;
+        }
+      } catch (error) {
+        statusDiv.innerHTML = `<div class="message error">✗ Fetch error: ${error.message}</div>`;
+      }
+    }
+
+    // Save settings
+    function saveSettings() {
+      const settings = {
+        evershopUrl: document.getElementById('evershopUrl').value,
+        botName: document.getElementById('botName').value,
+        welcomeMessage: document.getElementById('welcomeMessage').value,
+      };
+      
+      localStorage.setItem('chatbot_settings', JSON.stringify(settings));
+      showMessage('Settings saved successfully!');
+    }
+
+    // Load analytics
+    async function loadAnalytics() {
+      try {
+        const response = await fetch(`${API_URL}/api/chat-history/statistics`);
+        const data = await response.json();
+        
+        if (data.code === 0 && data.data) {
+          document.getElementById('messagesSent').textContent = data.data.totalMessages || 0;
+          document.getElementById('avgResponseTime').textContent = '5s'; // Placeholder
+          document.getElementById('csat').textContent = '4.5/5'; // Placeholder
+        }
+      } catch (error) {
+        console.error('Failed to load analytics:', error);
+      }
+    }
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', async () => {
+      // Load translations first
+      await loadTranslations();
+      
+      // Restore saved language
+      const savedLang = localStorage.getItem('admin_language');
+      if (savedLang && translations[savedLang]) {
+        currentLang = savedLang;
+        document.getElementById('languageSelector').value = savedLang;
+        applyTranslations();
+      }
+      
+      loadInbox();
+      
+      // Load saved settings
+      const savedSettings = localStorage.getItem('chatbot_settings');
+      if (savedSettings) {
+        const settings = JSON.parse(savedSettings);
+        document.getElementById('evershopUrl').value = settings.evershopUrl || '';
+        document.getElementById('botName').value = settings.botName || '';
+        document.getElementById('welcomeMessage').value = settings.welcomeMessage || '';
+      }
+    });
+  </script>
+</body>
+</html>
+

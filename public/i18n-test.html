@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Multi-language Widget Test</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 20px;
+      background: #f5f5f5;
+    }
+
+    h1 {
+      color: #333;
+      margin-bottom: 10px;
+    }
+
+    .subtitle {
+      color: #666;
+      margin-bottom: 30px;
+    }
+
+    .card {
+      background: white;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+    }
+
+    .language-selector {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+
+    .language-btn {
+      padding: 10px 20px;
+      border: 2px solid #ddd;
+      background: white;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+
+    .language-btn:hover {
+      border-color: red;
+      background: #fff5f5;
+    }
+
+    .language-btn.active {
+      border-color: red;
+      background: red;
+      color: white;
+    }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .feature {
+      padding: 20px;
+      background: #f9f9f9;
+      border-radius: 6px;
+      border-left: 4px solid red;
+    }
+
+    .feature h3 {
+      margin: 0 0 10px 0;
+      font-size: 16px;
+    }
+
+    .feature p {
+      margin: 0;
+      color: #666;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    code {
+      background: #f5f5f5;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: 'Courier New', monospace;
+    }
+
+    .info-box {
+      background: #e6f4ff;
+      border: 1px solid #91d5ff;
+      padding: 15px;
+      border-radius: 4px;
+      margin-bottom: 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+
+    table th,
+    table td {
+      text-align: left;
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+    }
+
+    table th {
+      background: #f9f9f9;
+      font-weight: 600;
+    }
+
+    .demo-text {
+      padding: 15px;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🌍 Multi-language Widget Test</h1>
+  <p class="subtitle">Test the chatbot widget in different languages</p>
+
+  <div class="info-box">
+    <strong>💡 How to test:</strong><br>
+    1. Select a language below<br>
+    2. Open the chat widget (red button in bottom-right)<br>
+    3. Notice all UI elements are translated<br>
+    4. The widget automatically detects and saves your language preference
+  </div>
+
+  <div class="card">
+    <h2>🎨 Language Selection</h2>
+    <p>Choose a language to update the widget interface:</p>
+    
+    <div class="language-selector">
+      <button class="language-btn active" onclick="changeLanguage('en')" id="btn-en">
+        🇺🇸 English
+      </button>
+      <button class="language-btn" onclick="changeLanguage('zh-CN')" id="btn-zh-CN">
+        🇨🇳 简体中文
+      </button>
+      <button class="language-btn" onclick="changeLanguage('es')" id="btn-es">
+        🇪🇸 Español
+      </button>
+    </div>
+
+    <div id="currentLanguage" style="margin-top: 15px; color: #666;">
+      Current language: <strong id="langDisplay">English</strong>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>📋 Translation Preview</h2>
+    <p>See how different UI elements translate:</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>UI Element</th>
+          <th>Translation</th>
+        </tr>
+      </thead>
+      <tbody id="translationTable">
+        <tr>
+          <td>Welcome Message</td>
+          <td id="preview-welcome">-</td>
+        </tr>
+        <tr>
+          <td>Input Placeholder</td>
+          <td id="preview-placeholder">-</td>
+        </tr>
+        <tr>
+          <td>Send Button</td>
+          <td id="preview-send">-</td>
+        </tr>
+        <tr>
+          <td>Connection Status (Online)</td>
+          <td id="preview-connected">-</td>
+        </tr>
+        <tr>
+          <td>Connection Status (Offline)</td>
+          <td id="preview-disconnected">-</td>
+        </tr>
+        <tr>
+          <td>Typing Indicator</td>
+          <td id="preview-typing">-</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>✨ i18n Features</h2>
+    <div class="feature-grid">
+      <div class="feature">
+        <h3>🌐 Auto-detection</h3>
+        <p>Automatically detects browser language and displays the appropriate translation</p>
+      </div>
+      <div class="feature">
+        <h3>💾 Persistence</h3>
+        <p>Saves language preference in localStorage, remembered across sessions</p>
+      </div>
+      <div class="feature">
+        <h3>🔄 Dynamic Switching</h3>
+        <p>Switch languages on-the-fly without page reload</p>
+      </div>
+      <div class="feature">
+        <h3>🎯 Fallback</h3>
+        <p>Falls back to English if translation is missing</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>📚 Supported Languages</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Language</th>
+          <th>Code</th>
+          <th>Coverage</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>🇺🇸 English</td>
+          <td><code>en</code></td>
+          <td>100%</td>
+          <td><span style="color: #52c41a;">✓ Complete</span></td>
+        </tr>
+        <tr>
+          <td>🇨🇳 Simplified Chinese</td>
+          <td><code>zh-CN</code></td>
+          <td>100%</td>
+          <td><span style="color: #52c41a;">✓ Complete</span></td>
+        </tr>
+        <tr>
+          <td>🇪🇸 Spanish</td>
+          <td><code>es</code></td>
+          <td>100%</td>
+          <td><span style="color: #52c41a;">✓ Complete</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Chatbot Widget -->
+  <script src="/widget/chatbot-widget.js"
+          data-api-url="http://localhost:3000"
+          data-bot-id="i18n-demo"
+          data-shop-id="multilingual-shop">
+  </script>
+
+  <script>
+    const langNames = {
+      'en': 'English',
+      'zh-CN': '简体中文',
+      'es': 'Español'
+    };
+
+    // Change language
+    function changeLanguage(lang) {
+      // Update widget language
+      if (typeof widgetI18n !== 'undefined') {
+        widgetI18n.setLanguage(lang);
+        
+        // Reload iframe to apply new language
+        const iframe = document.getElementById('chatbot_iframe');
+        if (iframe) {
+          iframe.src = iframe.src;
+        }
+      }
+
+      // Update button states
+      document.querySelectorAll('.language-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      document.getElementById(`btn-${lang}`).classList.add('active');
+
+      // Update language display
+      document.getElementById('langDisplay').textContent = langNames[lang];
+
+      // Update preview
+      updatePreview(lang);
+    }
+
+    // Update translation preview
+    function updatePreview(lang) {
+      // Load widget i18n
+      const script = document.createElement('script');
+      script.src = '/widget/i18n/translations.js';
+      script.onload = () => {
+        if (typeof WidgetI18n !== 'undefined') {
+          const i18n = new WidgetI18n();
+          i18n.setLanguage(lang);
+
+          document.getElementById('preview-welcome').textContent = i18n.t('welcome');
+          document.getElementById('preview-placeholder').textContent = i18n.t('placeholder');
+          document.getElementById('preview-send').textContent = i18n.t('send');
+          document.getElementById('preview-connected').textContent = i18n.t('connected');
+          document.getElementById('preview-disconnected').textContent = i18n.t('disconnected');
+          document.getElementById('preview-typing').textContent = i18n.t('typingIndicator', { name: 'Agent' });
+        }
+      };
+      if (!document.querySelector('script[src="/widget/i18n/translations.js"]')) {
+        document.head.appendChild(script);
+      } else {
+        script.onload();
+      }
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function() {
+      updatePreview('en');
+      console.log('✅ i18n test page loaded');
+    });
+  </script>
+</body>
+</html>
+

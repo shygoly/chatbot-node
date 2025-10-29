@@ -1,0 +1,124 @@
+{
+  "header": {
+    "title": "Panel de administración del chatbot",
+    "subtitle": "Gestione las conversaciones y configuraciones de su chatbot de EverShop"
+  },
+  "nav": {
+    "inbox": "Bandeja de entrada",
+    "assistant": "Asistente AI",
+    "settings": "Configuración",
+    "analytics": "Analítica",
+    "logout": "Cerrar sesión"
+  },
+  "inbox": {
+    "title": "Bandeja de entrada de conversaciones",
+    "subtitle": "{{count}} conversaciones no leídas",
+    "subtitle_desc": "Ver y gestionar conversaciones de clientes",
+    "search": "Buscar por nombre o correo",
+    "filterStatus": "Filtrar por estado",
+    "filterAgent": "Filtrar por agente",
+    "allConversations": "Todas las conversaciones",
+    "unread": "No leídas",
+    "assigned": "Asignadas a mí",
+    "unassigned": "Sin asignar",
+    "resolved": "Resueltas",
+    "noConversations": "No se encontraron conversaciones",
+    "selectConversation": "Seleccione una conversación para comenzar",
+    "assign": "Asignar",
+    "changeStatus": "Cambiar estado",
+    "addTag": "Agregar etiqueta",
+    "addNote": "Agregar nota",
+    "viewProfile": "Ver perfil"
+  },
+  "messages": {
+    "sendButton": "Enviar",
+    "typePlaceholder": "Escriba su mensaje...",
+    "typing": "{{name}} está escribiendo...",
+    "sendSuccess": "Mensaje enviado correctamente",
+    "sendError": "Error al enviar el mensaje",
+    "draft": "Borrador guardado"
+  },
+  "status": {
+    "open": "Abierto",
+    "pending": "Pendiente",
+    "resolved": "Resuelto",
+    "closed": "Cerrado",
+    "all": "Todos"
+  },
+  "assistant": {
+    "title": "Asistente AI",
+    "subtitle": "Sincroniza tus datos de EverShop con Coze",
+    "products": "Productos",
+    "orders": "Pedidos",
+    "customers": "Clientes",
+    "syncNow": "Sincronizar ahora",
+    "checkConnection": "Verificar conexión",
+    "lastSync": "Última sincronización: {{time}}",
+    "syncSuccess": "✓ ¡{{count}} {{type}} sincronizados correctamente!",
+    "syncError": "✗ Error de sincronización: {{error}}",
+    "connectionSuccess": "✓ Conectado a EverShop",
+    "connectionError": "✗ Error de conexión"
+  },
+  "settings": {
+    "title": "Configuración",
+    "subtitle": "Configure su chatbot",
+    "botConfiguration": "Configuración del bot",
+    "botName": "Nombre del bot",
+    "botDescription": "Descripción",
+    "welcomeMessage": "Mensaje de bienvenida",
+    "evershopIntegration": "Integración de EverShop",
+    "evershopUrl": "URL de EverShop",
+    "saveButton": "Guardar configuración",
+    "saveSuccess": "Configuración guardada correctamente",
+    "saveError": "Error al guardar la configuración"
+  },
+  "analytics": {
+    "title": "Analítica",
+    "subtitle": "Métricas de rendimiento del chatbot",
+    "overview": "Resumen",
+    "totalConversations": "Total de conversaciones",
+    "activeConversations": "Conversaciones activas",
+    "avgResponseTime": "Tiempo promedio de respuesta",
+    "resolutionRate": "Tasa de resolución",
+    "csatScore": "Puntuación CSAT",
+    "conversationVolume": "Volumen de conversaciones",
+    "agentPerformance": "Rendimiento de agentes",
+    "agentName": "Nombre del agente",
+    "conversationsHandled": "Conversaciones atendidas",
+    "avgResolution": "Tiempo promedio de resolución",
+    "selectDateRange": "Seleccionar rango de fechas",
+    "today": "Hoy",
+    "last7Days": "Últimos 7 días",
+    "last30Days": "Últimos 30 días",
+    "custom": "Rango personalizado"
+  },
+  "errors": {
+    "network": "Error de red. Verifique su conexión.",
+    "auth": "Error de autenticación. Inicie sesión nuevamente.",
+    "notFound": "Recurso no encontrado.",
+    "serverError": "Error del servidor. Inténtelo de nuevo más tarde.",
+    "validation": "Por favor revise su entrada.",
+    "unknown": "Ocurrió un error. Por favor, inténtelo de nuevo."
+  },
+  "common": {
+    "loading": "Cargando...",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "confirm": "Confirmar",
+    "back": "Atrás",
+    "next": "Siguiente",
+    "submit": "Enviar",
+    "close": "Cerrar",
+    "yes": "Sí",
+    "no": "No"
+  },
+  "websocket": {
+    "connected": "En línea",
+    "disconnected": "Fuera de línea",
+    "reconnecting": "Reconectando...",
+    "connectionLost": "Conexión perdida. Reconectando..."
+  }
+}
+

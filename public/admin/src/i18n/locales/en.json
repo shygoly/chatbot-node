@@ -1,0 +1,124 @@
+{
+  "header": {
+    "title": "Chatbot Admin Dashboard",
+    "subtitle": "Manage your EverShop chatbot conversations and settings"
+  },
+  "nav": {
+    "inbox": "Inbox",
+    "assistant": "AI Assistant",
+    "settings": "Settings",
+    "analytics": "Analytics",
+    "logout": "Logout"
+  },
+  "inbox": {
+    "title": "Conversation Inbox",
+    "subtitle": "{{count}} unread conversations",
+    "subtitle_desc": "View and manage customer conversations",
+    "search": "Search by name or email",
+    "filterStatus": "Filter by status",
+    "filterAgent": "Filter by agent",
+    "allConversations": "All Conversations",
+    "unread": "Unread",
+    "assigned": "Assigned to me",
+    "unassigned": "Unassigned",
+    "resolved": "Resolved",
+    "noConversations": "No conversations found",
+    "selectConversation": "Select a conversation to start",
+    "assign": "Assign",
+    "changeStatus": "Change Status",
+    "addTag": "Add Tag",
+    "addNote": "Add Note",
+    "viewProfile": "View Profile"
+  },
+  "messages": {
+    "sendButton": "Send",
+    "typePlaceholder": "Type your message...",
+    "typing": "{{name}} is typing...",
+    "sendSuccess": "Message sent successfully",
+    "sendError": "Failed to send message",
+    "draft": "Draft saved"
+  },
+  "status": {
+    "open": "Open",
+    "pending": "Pending",
+    "resolved": "Resolved",
+    "closed": "Closed",
+    "all": "All"
+  },
+  "assistant": {
+    "title": "AI Assistant",
+    "subtitle": "Sync your EverShop data with Coze",
+    "products": "Products",
+    "orders": "Orders",
+    "customers": "Customers",
+    "syncNow": "Sync Now",
+    "checkConnection": "Check Connection",
+    "lastSync": "Last synced: {{time}}",
+    "syncSuccess": "✓ Synced {{count}} {{type}} successfully!",
+    "syncError": "✗ Sync failed: {{error}}",
+    "connectionSuccess": "✓ Connected to EverShop",
+    "connectionError": "✗ Connection failed"
+  },
+  "settings": {
+    "title": "Settings",
+    "subtitle": "Configure your chatbot",
+    "botConfiguration": "Bot Configuration",
+    "botName": "Bot Name",
+    "botDescription": "Description",
+    "welcomeMessage": "Welcome Message",
+    "evershopIntegration": "EverShop Integration",
+    "evershopUrl": "EverShop URL",
+    "saveButton": "Save Settings",
+    "saveSuccess": "Settings saved successfully",
+    "saveError": "Failed to save settings"
+  },
+  "analytics": {
+    "title": "Analytics",
+    "subtitle": "Chatbot performance metrics",
+    "overview": "Overview",
+    "totalConversations": "Total Conversations",
+    "activeConversations": "Active Conversations",
+    "avgResponseTime": "Avg Response Time",
+    "resolutionRate": "Resolution Rate",
+    "csatScore": "CSAT Score",
+    "conversationVolume": "Conversation Volume",
+    "agentPerformance": "Agent Performance",
+    "agentName": "Agent Name",
+    "conversationsHandled": "Conversations Handled",
+    "avgResolution": "Avg Resolution Time",
+    "selectDateRange": "Select date range",
+    "today": "Today",
+    "last7Days": "Last 7 Days",
+    "last30Days": "Last 30 Days",
+    "custom": "Custom Range"
+  },
+  "errors": {
+    "network": "Network error. Please check your connection.",
+    "auth": "Authentication failed. Please log in again.",
+    "notFound": "Resource not found.",
+    "serverError": "Server error. Please try again later.",
+    "validation": "Please check your input.",
+    "unknown": "An error occurred. Please try again."
+  },
+  "common": {
+    "loading": "Loading...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "confirm": "Confirm",
+    "back": "Back",
+    "next": "Next",
+    "submit": "Submit",
+    "close": "Close",
+    "yes": "Yes",
+    "no": "No"
+  },
+  "websocket": {
+    "connected": "Online",
+    "disconnected": "Offline",
+    "reconnecting": "Reconnecting...",
+    "connectionLost": "Connection lost. Reconnecting..."
+  }
+}
+
