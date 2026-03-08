@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a **Node.js/Express proxy service** for chatbotadmin intelligent customer service APIs. The project acts as a lightweight intermediary between frontend clients and a Java Spring Boot backend, providing simplified RESTful endpoints, SSE streaming support, and OAuth integration.
+This is a **Node.js/Express backend service** for an intelligent customer service chatbot platform. It integrates with Coze AI, EverShop e-commerce, and Shopify, providing multi-tenant support, real-time chat streaming, webhook handling, and data synchronization.
 
 ## Development Commands
 
@@ -15,104 +15,162 @@ This is a **Node.js/Express proxy service** for chatbotadmin intelligent custome
 - `npm run lint` - Run ESLint on TypeScript source files
 - `npm run format` - Format code using Prettier
 
-### Testing
-- No automated test framework is currently configured
-- Use `./examples/test-api.sh` for manual API testing
-- Test script includes comprehensive API endpoint validation
+### Database Commands
+- `npm run db:generate` - Generate Prisma client
+- `npm run db:migrate` - Run pending migrations
+- `npm run db:push` - Push schema changes to database (dev only)
+- `npm run db:seed` - Seed database with initial data
+- `npm run db:studio` - Open Prisma Studio for database inspection
+
+### Setup
+```bash
+npm install
+cp .env.example .env
+# Edit .env with your configuration
+npm run db:generate
+npm run db:migrate
+npm run dev
+```
 
 ## Architecture Overview
 
-### Proxy Pattern
-The service functions as a **stateless proxy** to the chatbotadmin backend at `http://localhost:48080`:
-- All requests are transparently forwarded to the backend
-- Response wrapping (`CommonResult<T>`) is automatically unwrapped
-- Error handling is centralized through middleware
-- CORS and security headers are applied at the proxy level
+### Multi-Tenant Design
+The service supports multiple merchants/shops with isolated data:
+- **Tenant model**: Stores shop configuration, SSO settings, webhook secrets
+- **TenantConfig model**: Per-shop settings (logo, bot ID, sync scopes)
+- **Tenant-scoped data**: Chat history, bot settings, inbox users all include `tenantId`
+- **Authentication**: Tenant ID passed via headers or extracted from JWT
 
-### API Groups
-- **Coze API** (`/api/coze`): Bot management, chat, and dataset updates
+### Core Features
+- **Coze Integration**: AI bot management and chat streaming via Coze API
+- **EverShop Sync**: Webhook-based product/order/promotion synchronization
+- **Shopify Support**: Bot settings and inbox user management for Shopify stores
+- **Real-time Chat**: SSE streaming for live chat responses
+- **Job Queue**: Bull-based async job processing (via Redis)
+- **WebSocket Support**: Socket.io for real-time updates
+
+### API Route Groups
+- **Auth** (`/api/auth`): Login, token refresh, SSO flows (no auth required)
+- **Coze API** (`/api/coze`): Bot management, chat, dataset updates
 - **Coze OAuth** (`/api/coze/oauth`): Coze authorization flow
 - **Bot Settings** (`/api/bot-settings`): Shopify bot configuration
 - **Chat History** (`/api/chat-history`): Chat history and statistics
 - **Coze Info** (`/api/coze-info`): Coze bot information
 - **Inquiries** (`/api/inquiries`): Customer service inquiries
 - **Inbox Users** (`/api/inbox-users`): Chat inbox user management
+- **EverShop** (`/api/evershop`): EverShop integration endpoints
+- **Webhooks** (`/api/webhooks`): Webhook receivers for external services
+- **Analytics** (`/api/analytics`): Chat analytics and reporting
+- **Tenant Admin** (`/api/admin/tenants`): Tenant registration and configuration
+- **Sync** (`/api/sync`): EverShop webhook handlers (products/orders/promotions)
+- **Import** (`/api/import`): Initial data sync pull endpoints
 
 ### Key Components
-- **Configuration**: Centralized config in `src/config/index.ts` with environment variable support
-- **Backend Client**: HTTP client in `src/lib/backend-client.ts` handles all backend communication
-- **Middleware**: Request logging and centralized error handling
-- **Authentication**: JWT-based with tenant ID validation
+- **Configuration**: `src/config/index.ts` - Centralized config with environment variables
+- **Database**: Prisma ORM with PostgreSQL, models in `prisma/schema.prisma`
+- **Authentication Middleware**: Multiple strategies in `src/middleware/`:
+  - `customer-auth.ts`: Customer-facing authentication
+  - `auth-shopsaas.ts`: ShopSaaS SSO authentication
+  - `auth-sso.ts`: Generic SSO authentication
+- **Services**: Business logic in `src/services/`:
+  - `websocket.service.ts`: Socket.io connection management
+  - `ChatStreamPersistenceService.ts`: Persist streaming chat responses
+  - `coze-stream-adapter.ts`: Adapt Coze streaming format
+  - `tenant.service.ts`: Tenant management
 - **Logging**: Winston-based with request ID tracing
+- **Error Handling**: Centralized middleware with consistent error responses
 
 ## Important Implementation Details
 
-### Authentication Flow
-All endpoints require:
-```http
-Authorization: Bearer <access_token>
-tenant-id: 1
-```
+### Authentication
+Multiple authentication strategies supported:
+- **JWT Bearer tokens**: Standard `Authorization: Bearer <token>` header
+- **Tenant ID**: Required header `tenant-id` for multi-tenant routing
+- **SSO flows**: ShopSaaS and generic SSO via `/api/auth` endpoints
+- **Customer auth**: Separate middleware for customer-facing endpoints
 
-### Special Features
-- **SSE Streaming**: `/api/coze/chat` supports Server-Sent Events for real-time chat responses
-- **File Downloads**: Export endpoints return binary streams (Excel files)
-- **Path Mapping**: Proxy paths are mapped to backend paths via route configuration
-- **Error Responses**: Consistent error format with timestamps and status codes
+### Database Models
+- **CozeChatHistory**: Chat messages with conversation tracking
+- **ShopifyBotSetting**: Bot configuration per Shopify shop
+- **ShopifyInboxUser**: Inbox users for Shopify integration
+- **CozeConversation**: Conversation metadata and tracking
+- **AdminUser**: Admin authentication (bcrypt hashed passwords)
+- **Tenant**: Multi-tenant shop configuration with SSO settings
+- **TenantConfig**: Per-tenant settings (logo, bot ID, sync scopes)
+- **WebhookDelivery**: Webhook delivery tracking and retry logic
 
-### Backend Dependencies
-The proxy depends on a Java Spring Boot backend running at `http://localhost:48080`. Before starting development:
-1. Ensure the chatbotadmin backend is running
-2. Use `admin`/`admin123` credentials for authentication
-3. Backend login endpoint: `/admin-api/system/auth/login`
+### Real-time Features
+- **SSE Streaming**: `/api/coze/chat` supports Server-Sent Events
+- **WebSocket**: Socket.io for real-time updates (configured in `src/services/websocket.service.ts`)
+- **Job Queue**: Bull queue for async processing (Redis-backed)
 
-### Configuration Files
-- **Environment variables**: Define in `.env` file (see `.env.example`)
-- **TypeScript configuration**: Strict mode enabled with comprehensive checks
-- **CORS**: Configurable origin with default `*`
-- **Request timeout**: 30-second timeout for backend requests
+### EverShop Integration
+- Webhook receivers at `/api/sync/products`, `/api/sync/orders`, `/api/sync/promotions`
+- Initial data pull via `/api/import/products`, `/api/import/orders`, `/api/import/promotions`
+- Tenant-specific webhook secrets for security
+
+### Configuration
+Environment variables in `.env`:
+- `DATABASE_URL`: PostgreSQL connection string
+- `PORT`: Server port (default 3000)
+- `NODE_ENV`: Environment (development/production)
+- `CORS_ORIGIN`: CORS allowed origins
+- `COZE_CLIENT_ID`, `COZE_PUBLIC_KEY`, `COZE_PRIVATE_KEY_PATH`: Coze OAuth credentials
+- `EVERSHOP_BASE_URL`, `EVERSHOP_EMAIL`, `EVERSHOP_PASSWORD`: EverShop integration
+- `SHOPSAAS_BASE_URL`, `SHOPSAAS_SHARED_SECRET`: ShopSaaS SSO configuration
 
 ## Project Structure
 
 ```
 chatbot-node/
 ├── src/
-│   ├── config/index.ts          # Centralized configuration
+│   ├── config/index.ts                    # Configuration management
 │   ├── lib/
-│   │   ├── backend-client.ts    # Backend HTTP client
-│   │   └── logger.ts            # Winston logger
+│   │   ├── backend-client.ts              # HTTP client for backend
+│   │   └── logger.ts                      # Winston logger
 │   ├── middleware/
-│   │   ├── error-handler.ts    # Global error handling
-│   │   └── request-logger.ts   # Request logging with IDs
-│   ├── routes/                 # API route definitions
-│   ├── types/index.ts          # TypeScript type definitions
-│   ├── app.ts                  # Express app setup
-│   └── index.ts                # Server entry point
-├── config/coze-private-key.pem  # OAuth private key
-├── examples/test-api.sh        # Comprehensive API testing script
-└── docs/chatbot-api-spec.md    # API specification
+│   │   ├── error-handler.ts               # Global error handling
+│   │   ├── request-logger.ts              # Request logging
+│   │   ├── customer-auth.ts               # Customer authentication
+│   │   ├── auth-shopsaas.ts               # ShopSaaS SSO
+│   │   └── auth-sso.ts                    # Generic SSO
+│   ├── routes/                            # API route definitions
+│   ├── services/
+│   │   ├── websocket.service.ts           # Socket.io management
+│   │   ├── ChatStreamPersistenceService.ts # Chat persistence
+│   │   ├── coze-stream-adapter.ts         # Coze format adapter
+│   │   └── tenant.service.ts              # Tenant operations
+│   ├── types/index.ts                     # TypeScript definitions
+│   ├── app.ts                             # Express app setup
+│   └── index.ts                           # Server entry point
+├── prisma/
+│   ├── schema.prisma                      # Database schema
+│   ├── seed.ts                            # Database seeding
+│   └── migrations/                        # Migration history
+├── public/
+│   ├── widget/                            # Chat widget files
+│   └── admin/                             # Admin dashboard
+├── config/coze-private-key.pem            # Coze OAuth private key
+└── start.sh                               # Production startup script
 ```
 
 ## Development Workflow
 
-1. **Start backend**: Ensure chatbotadmin backend is running on port 48080
-2. **Development**: `npm run dev` starts proxy on port 3000 with hot-reload
-3. **Testing**: Use `./examples/test-api.sh` to validate all API endpoints
-4. **Production**: Build with `npm run build`, start with `npm start`
+1. **Setup database**: `npm run db:generate && npm run db:migrate`
+2. **Development**: `npm run dev` starts server on port 3000 with hot-reload
+3. **Database inspection**: `npm run db:studio` opens Prisma Studio
+4. **Production**: `npm run build && npm start`
 
-### Environment Setup
-```bash
-cp .env.example .env
-# Configure BACKEND_URL, PORT, and OAuth credentials
-npm install
-npm run dev
-```
+## Common Tasks
 
-## Important Notes
+### Adding a New Tenant
+Use `/api/admin/tenants` endpoints to register and configure new shops.
 
-- **No automated tests**: Consider adding Jest or similar testing framework
-- **Strict TypeScript**: Compiler flags prevent many common errors
-- **Security**: Helmet.js and CORS configured for production use
-- **Logging**: Winston logs include request IDs for tracing
-- **Error handling**: Centralized middleware provides consistent error responses
-- **Docker ready**: Production deployment via Dockerfile in root directory
+### Handling Webhooks
+Webhook receivers in `src/routes/sync.routes.ts` and `src/routes/webhooks.routes.ts`. Verify webhook signatures using tenant's webhook secret.
+
+### Streaming Chat Responses
+Use `ChatStreamPersistenceService` to persist SSE streamed responses to database while sending to client.
+
+### Multi-tenant Queries
+Always filter by `tenantId` when querying database. Use tenant ID from request headers or JWT claims.
